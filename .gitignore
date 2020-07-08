@@ -1,0 +1,10 @@
+SDL*
+*.wav
+*.exe
+*.txt
+b*
+k*
+*.json
+*.suo
+*.sqlite
+.vscode
