@@ -106,18 +106,18 @@ void fill_audio(void* udata, Uint8* stream, int len) {
         azimuth += AZIMUTH_INCREMENT_DEGREES;
         if(reverse) {
             azimuth -= AZIMUTH_INCREMENT_DEGREES;
-            /*if(azimuth < start) {
+            if(azimuth < start) {
                 reverse = false;
                 azimuth += AZIMUTH_INCREMENT_DEGREES;
                 azimuth += AZIMUTH_INCREMENT_DEGREES;
-            }*/
+            }
         } else {
             azimuth += AZIMUTH_INCREMENT_DEGREES;
-            /*if(azimuth > finish) {
+            if(azimuth > finish) {
                 reverse = true;
                 azimuth -= AZIMUTH_INCREMENT_DEGREES;
                 azimuth -= AZIMUTH_INCREMENT_DEGREES;
-            }*/
+            }
         }
         // azimuth %= 360;
 
