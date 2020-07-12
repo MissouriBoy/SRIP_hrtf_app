@@ -15,6 +15,7 @@
 
 const char HRTF_FILE_FORMAT_MIT[] = "mit/elev%d/H%de%03da.wav";
 const char AUDIO_FILE[] = "./beep.wav";
+const char BEE_FILE[] = "./bee.wav";
 
 const float FPS = 60.0f;
 const float FRAME_TIME = 16.6666667f;   // 1000 / FPS
@@ -100,10 +101,10 @@ void fill_audio(void* udata, Uint8* stream, int len) {
     }
 
     bool swap = false;
-    bool reverse = false;
+    static bool reverse = false;
 
     if (sample >= total_samples) {
-        azimuth += AZIMUTH_INCREMENT_DEGREES;
+        // azimuth += AZIMUTH_INCREMENT_DEGREES;
         if(reverse) {
             azimuth -= AZIMUTH_INCREMENT_DEGREES;
             if(azimuth < start) {
@@ -227,15 +228,18 @@ void print_audio_spec(SDL_AudioSpec* spec) {
 }
 
 int main(int argc, char* argv[]) {
-    /*char *begin, *end;
+    int begin, end;
     fprintf(stdout, "Please enter starting azimuth: ");
-    fscanf(stdin, begin);
+    scanf("%d", &begin);
     fprintf(stdout, "Please enter ending azimuth: ");
-    fscanf(stdin, end);
-    fprintf(stdout, "Start: %s", begin);
-    fprintf(stdout, "End: %s", end);
-    start = atoi(begin);
-    finish = atoi(end);*/
+    scanf("%d", &end);
+    if(begin < 0) {  begin = 0;  }
+    if(end > 360) {  end = 360;  }
+    // fprintf(stdout, "Start: %d", begin);
+    // fprintf(stdout, "End: %d", end);
+    start = begin;
+    finish = end;
+    // printf("%d\n%d\n", start, finish);
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
