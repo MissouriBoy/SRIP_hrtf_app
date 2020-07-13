@@ -17,6 +17,8 @@
 const char HRTF_FILE_FORMAT_MIT[] = "mit/elev%d/H%de%03da.wav";
 const char AUDIO_FILE[] = "./beep.wav";
 const char BEE_FILE[] = "./fail-buzzer-01.wav";
+const char StarWar_FILE[] = "./StarWars3.wav";
+const char Train_FILE[] = "./train-whistle-01.wav";
 
 const float FPS = 60.0f;
 const float FRAME_TIME = 16.6666667f;   // 1000 / FPS
@@ -259,7 +261,7 @@ int main(int argc, char* argv[]) {
     if(end > 360) {  end = 360;  }
     start = begin;
     finish = end;
-    printf("0 for beep, 1 for bee\n");
+    printf("0 for beep, 1 for StarWar, 2 for train, 3 for bee\n");
     scanf("%d", &sound);
 
     SDL_AudioSpec obtained_audio_spec;
@@ -303,13 +305,26 @@ int main(int argc, char* argv[]) {
     }
 
     // specified audio file is used
-    if(sound) {
+    if(sound == 0) {
         if (!SDL_LoadWAV(BEE_FILE, file_audio_spec, &audio_buf, &audio_len)) {
             printf("Could not load audio file: %s", BEE_FILE);
             SDL_Quit();
            return 1;
         }
-    } else {
+    } else if(sound == 1){
+        if (!SDL_LoadWAV(StarWar_FILE, file_audio_spec, &audio_buf, &audio_len)) {
+            printf("Could not load audio file: %s", StarWar_FILE);
+            SDL_Quit();
+           return 1;
+        }
+    }else if(sound == 2){
+        if (!SDL_LoadWAV(Train_FILE, file_audio_spec, &audio_buf, &audio_len)) {
+            printf("Could not load audio file: %s", Train_FILE);
+            SDL_Quit();
+           return 1;
+        }
+    }
+     else {
         if (!SDL_LoadWAV(AUDIO_FILE, file_audio_spec, &audio_buf, &audio_len)) {
             printf("Could not load audio file: %s", AUDIO_FILE);
             SDL_Quit();
