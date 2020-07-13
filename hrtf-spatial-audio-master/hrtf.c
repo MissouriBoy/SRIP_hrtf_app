@@ -15,7 +15,7 @@
 
 const char HRTF_FILE_FORMAT_MIT[] = "mit/elev%d/H%de%03da.wav";
 const char AUDIO_FILE[] = "./beep.wav";
-const char BEE_FILE[] = "./bee.wav";
+const char BEE_FILE[] = "./fail-buzzer-01.wav";
 
 const float FPS = 60.0f;
 const float FRAME_TIME = 16.6666667f;   // 1000 / FPS
@@ -105,6 +105,7 @@ void fill_audio(void* udata, Uint8* stream, int len) {
 
     if (sample >= total_samples) {
         // azimuth += AZIMUTH_INCREMENT_DEGREES;
+        if(start != finish) {
         if(reverse) {
             azimuth -= AZIMUTH_INCREMENT_DEGREES;
             if(azimuth < start) {
@@ -119,6 +120,7 @@ void fill_audio(void* udata, Uint8* stream, int len) {
                 azimuth -= AZIMUTH_INCREMENT_DEGREES;
                 azimuth -= AZIMUTH_INCREMENT_DEGREES;
             }
+        }
         }
         // azimuth %= 360;
 
@@ -228,18 +230,8 @@ void print_audio_spec(SDL_AudioSpec* spec) {
 }
 
 int main(int argc, char* argv[]) {
-    int begin, end;
-    fprintf(stdout, "Please enter starting azimuth: ");
-    scanf("%d", &begin);
-    fprintf(stdout, "Please enter ending azimuth: ");
-    scanf("%d", &end);
-    if(begin < 0) {  begin = 0;  }
-    if(end > 360) {  end = 360;  }
-    // fprintf(stdout, "Start: %d", begin);
-    // fprintf(stdout, "End: %d", end);
-    start = begin;
-    finish = end;
-    // printf("%d\n%d\n", start, finish);
+    int begin, end, sound;
+    
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
@@ -257,6 +249,17 @@ int main(int argc, char* argv[]) {
         SDL_Quit();
         return 1;
     }
+    
+    fprintf(stdout, "Please enter starting azimuth: ");
+    scanf("%d", &begin);
+    fprintf(stdout, "Please enter ending azimuth: ");
+    scanf("%d", &end);
+    if(begin < 0) {  begin = 0;  }
+    if(end > 360) {  end = 360;  }
+    start = begin;
+    finish = end;
+    printf("0 for beep, 1 for bee\n");
+    scanf("%d", &sound);
 
     SDL_AudioSpec obtained_audio_spec;
     SDL_AudioSpec desired_audio_spec;
@@ -298,10 +301,18 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    if (!SDL_LoadWAV(AUDIO_FILE, file_audio_spec, &audio_buf, &audio_len)) {
-        printf("Could not load audio file: %s", AUDIO_FILE);
-        SDL_Quit();
-        return 1;
+    if(sound) {
+        if (!SDL_LoadWAV(BEE_FILE, file_audio_spec, &audio_buf, &audio_len)) {
+            printf("Could not load audio file: %s", BEE_FILE);
+            SDL_Quit();
+           return 1;
+        }
+    } else {
+        if (!SDL_LoadWAV(AUDIO_FILE, file_audio_spec, &audio_buf, &audio_len)) {
+            printf("Could not load audio file: %s", AUDIO_FILE);
+            SDL_Quit();
+           return 1;
+        }
     }
 
     printf("Wav Spec:\n");
