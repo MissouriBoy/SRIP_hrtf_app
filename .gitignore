@@ -3,7 +3,6 @@ SDL*
 *.exe
 *.txt
 b*
-k*
 *.json
 *.suo
 *.sqlite
