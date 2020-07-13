@@ -4,6 +4,7 @@
 //
 // Written by Ryan Huffman <ryanhuffman@gmail.com>
 
+
 #include "SDL2/include/SDL.h"
 #include <stdio.h>
 #include <stdbool.h>
@@ -301,6 +302,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    // specified audio file is used
     if(sound) {
         if (!SDL_LoadWAV(BEE_FILE, file_audio_spec, &audio_buf, &audio_len)) {
             printf("Could not load audio file: %s", BEE_FILE);
