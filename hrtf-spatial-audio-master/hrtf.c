@@ -40,6 +40,7 @@ int total_samples = 0;
 // starting and ending azimuths
 int start = 10, finish = 100;
 int userC;
+int jumpC;
 // FFT storage for convolution with HRTFs during playback
 kiss_fft_cpx* audio_kiss_buf;    // Audio data, time domain
 kiss_fft_cpx* audio_kiss_freq;   // Audio data, stores a single sample, freq domain
@@ -133,15 +134,31 @@ void fill_audio(void* udata, Uint8* stream, int len ) {
 
         }
         
-        // random geneartor
-        int odd = rand() % 10; // genearte anything between 0 and 9
-        if(odd > 6){
-            azimuth += AZIMUTH_INCREMENT_DEGREES;
-        }
-        if(odd > 8){
-            azimuth += AZIMUTH_INCREMENT_DEGREES;
+        if(jumpC == 1){
+            // random geneartor
+            int odd = rand() % 100; // genearte anything between 0 and 9
+            if(odd > 60){
+                if(reverse == false){
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                }else{
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                }
+                
+            }
+            if(odd > 85){
+                if(reverse == false){
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                }else{
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                }
+                
+            }
+
         }
         
+       
         
 
 
@@ -200,6 +217,7 @@ void fill_audio(void* udata, Uint8* stream, int len ) {
     sample += num_samples;
 }
 
+
 void print_audio_spec(SDL_AudioSpec* spec) {
     printf("\tFrequency: %u\n", spec->freq);
     const char* sformat;
@@ -251,7 +269,7 @@ void print_audio_spec(SDL_AudioSpec* spec) {
 }
 
 int main(int argc, char* argv[]) {
-    int begin, end, sound, choice;
+    int begin, end, sound, choice, jump;
     
     // SDL stuff
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
@@ -271,13 +289,13 @@ int main(int argc, char* argv[]) {
     }
     
     // interactive stuff
-    fprintf(stdout, "1 for standard path, 2 for customized path ");
+    fprintf(stdout, "1 for standard path, 2 for customized path\n ");
     scanf("%d", &choice);
     if(choice == 2){
-        fprintf(stdout, "Please enter starting azimuth: ");
-        fprintf(stdout, "Please enter starting azimuth: ");
+        
+        fprintf(stdout, "Please enter starting azimuth:\n ");
         scanf("%d", &begin);
-        fprintf(stdout, "Please enter ending azimuth: ");
+        fprintf(stdout, "Please enter ending azimuth:\n ");
         scanf("%d", &end);
         if(begin < 0) {  begin = 0;  }
         if(end > 360) {  end = 360;  }
@@ -285,6 +303,9 @@ int main(int argc, char* argv[]) {
         finish = end;
         printf("0 for beep, 1 for StarWar, 2 for train, 3 for bee\n");
         scanf("%d", &sound);
+        printf("select 0/1 to enable/disable sound effect\n");
+        scanf("%d", &jump);
+        jumpC = jump;
     }
     else{
         start = 0;
