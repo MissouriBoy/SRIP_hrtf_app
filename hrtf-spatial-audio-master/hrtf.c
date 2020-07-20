@@ -128,6 +128,7 @@ void fill_audio(void* udata, Uint8* stream, int len ) {
         }
         // No reverse for standard path
         if(userC == 1){
+
             reverse = false;
             azimuth %= 360;
         }
@@ -274,23 +275,71 @@ int main(int argc, char* argv[]) {
     // SDL stuff
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDL_Window *window;
+    SDL_Surface *windowSurface;
 
-    int x = SDL_WINDOWPOS_UNDEFINED,
-        y = SDL_WINDOWPOS_UNDEFINED,
-        width = 640,
-        height = 480;
+    //SDL_StartTextInput();
+    SDL_Surface *image1;
+    SDL_Surface *image2;
+    SDL_Surface *image3;
+    SDL_Surface *image4;
+   
+    SDL_Surface *currentImage;
 
-    window = SDL_CreateWindow("HRTF", x, y, width, height, SDL_WINDOW_SHOWN);
+    
+    window = SDL_CreateWindow("HRTF", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480,SDL_WINDOW_SHOWN);
+    windowSurface = SDL_GetWindowSurface(window);
 
-    if (!window) {
-        printf("Error creating window");
-        SDL_Quit();
-        return 1;
+    image1 = SDL_LoadBMP("test1.bmp");
+    image2 = SDL_LoadBMP("test2.bmp");
+    image3 = SDL_LoadBMP("choosePath.bmp");
+
+    currentImage = image1;
+
+    bool isRunning = true;
+    SDL_Event ev;
+
+    while(isRunning){
+        while (SDL_PollEvent(&ev) !=0)
+        {
+            if(ev.type == SDL_QUIT){
+                isRunning = false;
+            }
+
+            else if(ev.type == SDL_MOUSEBUTTONUP){
+                if(ev.button.clicks == 1){
+                    choice = 1;
+                }
+                if(ev.button.clicks > 1){
+                    currentImage = image2;
+                    choice = 2;
+                }
+            }
+            else if(ev.type == SDL_MOUSEBUTTONUP){
+                if(ev.button.button == SDL_BUTTON_LEFT){
+                    currentImage = image1;
+                }
+                if(ev.button.clicks == SDL_BUTTON_RIGHT){
+                    currentImage = image3;
+                    
+                }
+            }
+            
+        }
+        SDL_BlitSurface(currentImage, NULL, windowSurface, NULL);
+        SDL_UpdateWindowSurface(window);
     }
     
+    //SDL_StopTextInput();
+    SDL_FreeSurface(image1);
+    SDL_FreeSurface(image2);
+    SDL_DestroyWindow(window);
+
+    
+    
+    
     // interactive stuff
-    fprintf(stdout, "1 for standard path, 2 for customized path\n ");
-    scanf("%d", &choice);
+    //fprintf(stdout, "1 for standard path, 2 for customized path\n ");
+    //scanf("%d", &choice);
     if(choice == 2){
         
         fprintf(stdout, "Please enter starting azimuth:\n ");
@@ -485,7 +534,6 @@ int main(int argc, char* argv[]) {
             if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
                 running = false;
             }
-
 
         }
 
