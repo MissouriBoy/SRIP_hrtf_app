@@ -341,6 +341,10 @@ int main(int argc, char* argv[]) {
                         currentImage = chooseEffect;
                         var = 3;
                         break;
+                    case SDLK_BACKSPACE:
+                        currentImage = menu;
+                        var = 0;
+                        break;
                     }
                 }
                 if(var == 2){
@@ -357,6 +361,10 @@ int main(int argc, char* argv[]) {
                         break;
                     case SDLK_3:
                         sound = 3;
+                        break;
+                    case SDLK_BACKSPACE:
+                        currentImage = menu;
+                        var = 0;
                         break;
                     }
                 }
