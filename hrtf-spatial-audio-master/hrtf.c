@@ -351,7 +351,7 @@ int main(int argc, char* argv[]) {
     //SDL_StopTextInput();
     SDL_FreeSurface(image1);
     SDL_FreeSurface(image2);
-    //SDL_DestroyWindow(window);
+    SDL_DestroyWindow(window);
 
     
     
