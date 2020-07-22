@@ -306,25 +306,14 @@ int main(int argc, char* argv[]) {
                  isRunning = false;
                 break;
             case SDL_MOUSEWHEEL:
-                if(ev.wheel.y< 0)
+                if(ev.wheel.y > 0)
                     currentImage = intro;
-                else if(ev.wheel.y >0){
+                else if(ev.wheel.y < 0){
                     currentImage = menu;
                     var = 0;              
                 }      
                 break;
-            case SDL_MOUSEBUTTONUP:
-                if(var == 1){
-                    if(ev.button.clicks > 1){
-                        choice = 2;
-                        SDL_ShowSimpleMessageBox(0, "Path", "Customized Path is selected", window);
-                    }
-                    if(ev.button.clicks == 1){
-                        choice = 1;
-                        //SDL_ShowSimpleMessageBox(0, "Path", "Standard Path is selected", window);
-                    }
-                }
-                break;
+            
             case SDL_KEYDOWN:
                 if(var == 0){
                     switch (ev.key.keysym.sym)
@@ -340,6 +329,18 @@ int main(int argc, char* argv[]) {
                     case SDLK_3:
                         currentImage = chooseEffect;
                         var = 3;
+                        break;
+                    }
+                }
+                if(var == 1){
+                    switch (ev.key.keysym.sym)
+                    {
+                    case SDLK_0:
+                        choice = 1;
+                        break;
+                    case SDLK_1:
+                        choice = 2;
+                        SDL_ShowSimpleMessageBox(0, "Path", "Customized Path is selected", window);
                         break;
                     case SDLK_BACKSPACE:
                         currentImage = menu;
@@ -361,6 +362,21 @@ int main(int argc, char* argv[]) {
                         break;
                     case SDLK_3:
                         sound = 3;
+                        break;
+                    case SDLK_BACKSPACE:
+                        currentImage = menu;
+                        var = 0;
+                        break;
+                    }
+                }
+                if(var == 3){
+                    switch (ev.key.keysym.sym)
+                    {
+                    case SDLK_0:
+                        jump = 1;
+                        break;
+                    case SDLK_1:
+                        jump = 0;
                         break;
                     case SDLK_BACKSPACE:
                         currentImage = menu;
