@@ -159,10 +159,6 @@ void fill_audio(void* udata, Uint8* stream, int len ) {
 
         }
         
-       
-        
-
-
         sample = 0;
 
         printf("Azimuth: %d\n", azimuth);
@@ -311,17 +307,31 @@ int main(int argc, char* argv[]) {
                 if(ev.wheel.y< 0)
                     currentImage = chooseP;
                 else if(ev.wheel.y >0)
-                    currentImage = chooseA;
+                    currentImage = chooseA;                   
+                break;
             case SDL_MOUSEBUTTONUP:
+                if(ev.button.clicks > 1){
+                    choice = 2;
+                    SDL_ShowSimpleMessageBox(0, "Path", "Customized Path is selected", window);
+                }
                 if(ev.button.clicks == 1){
                     choice = 1;
+                    //SDL_ShowSimpleMessageBox(0, "Path", "Standard Path is selected", window);
                 }
-                if(ev.button.clicks > 1){
-                    currentImage = image2;
-                    choice = 2;
-                }
-            default:
                 break;
+            case SDL_KEYDOWN:
+                switch (ev.key.keysym.sym)
+                {
+                case SDLK_1:
+                    currentImage = image1;
+                    break;
+                case SDLK_2:
+                    currentImage = image2;
+                    break;
+                }
+                
+                
+
             }
           
         
@@ -341,7 +351,7 @@ int main(int argc, char* argv[]) {
     //SDL_StopTextInput();
     SDL_FreeSurface(image1);
     SDL_FreeSurface(image2);
-    SDL_DestroyWindow(window);
+    //SDL_DestroyWindow(window);
 
     
     
