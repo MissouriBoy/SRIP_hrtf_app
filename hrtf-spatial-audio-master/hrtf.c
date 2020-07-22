@@ -274,10 +274,11 @@ int main(int argc, char* argv[]) {
     SDL_Surface *windowSurface;
 
     //SDL_StartTextInput();
-    SDL_Surface *image1;
-    SDL_Surface *image2;
+    SDL_Surface *intro;
+    SDL_Surface *menu;
     SDL_Surface *chooseP;
     SDL_Surface *chooseA;
+    SDL_Surface *chooseEffect;
    
     SDL_Surface *currentImage;
 
@@ -285,15 +286,16 @@ int main(int argc, char* argv[]) {
     window = SDL_CreateWindow("HRTF", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 440,SDL_WINDOW_SHOWN);
     windowSurface = SDL_GetWindowSurface(window);
 
-    image1 = SDL_LoadBMP("test1.bmp");
-    image2 = SDL_LoadBMP("test2.bmp");
+    intro = SDL_LoadBMP("test1.bmp");
+    menu = SDL_LoadBMP("Menu.bmp");
     chooseP = SDL_LoadBMP("choosePath.bmp");
     chooseA = SDL_LoadBMP("chooseA.bmp");
-
-    currentImage = image1;
+    chooseEffect = SDL_LoadBMP("SoundE.bmp");
+    currentImage = intro;
 
     bool isRunning = true;
     SDL_Event ev;
+    int var = -1; // -1 for intro, 0 for menu, 1 for choose path, 2 for choose audio, 3 for choose sound effect
 
     while(isRunning){
         while (SDL_PollEvent(&ev) !=0)
@@ -305,31 +307,61 @@ int main(int argc, char* argv[]) {
                 break;
             case SDL_MOUSEWHEEL:
                 if(ev.wheel.y< 0)
-                    currentImage = chooseP;
-                else if(ev.wheel.y >0)
-                    currentImage = chooseA;                   
+                    currentImage = intro;
+                else if(ev.wheel.y >0){
+                    currentImage = menu;
+                    var = 0;              
+                }      
                 break;
             case SDL_MOUSEBUTTONUP:
-                if(ev.button.clicks > 1){
-                    choice = 2;
-                    SDL_ShowSimpleMessageBox(0, "Path", "Customized Path is selected", window);
-                }
-                if(ev.button.clicks == 1){
-                    choice = 1;
-                    //SDL_ShowSimpleMessageBox(0, "Path", "Standard Path is selected", window);
+                if(var == 1){
+                    if(ev.button.clicks > 1){
+                        choice = 2;
+                        SDL_ShowSimpleMessageBox(0, "Path", "Customized Path is selected", window);
+                    }
+                    if(ev.button.clicks == 1){
+                        choice = 1;
+                        //SDL_ShowSimpleMessageBox(0, "Path", "Standard Path is selected", window);
+                    }
                 }
                 break;
             case SDL_KEYDOWN:
-                switch (ev.key.keysym.sym)
-                {
-                case SDLK_1:
-                    currentImage = image1;
-                    break;
-                case SDLK_2:
-                    currentImage = image2;
-                    break;
+                if(var == 0){
+                    switch (ev.key.keysym.sym)
+                    {
+                    case SDLK_1:
+                        currentImage = chooseP;
+                        var = 1;
+                        break;
+                    case SDLK_2:
+                        currentImage = chooseA;
+                        var = 2;
+                        break;
+                    case SDLK_3:
+                        currentImage = chooseEffect;
+                        var = 3;
+                        break;
+                    }
+                }
+                if(var == 2){
+                    switch (ev.key.keysym.sym)
+                    {
+                    case SDLK_0:
+                        sound = 0;
+                        break;
+                    case SDLK_1:
+                        sound = 1;
+                        break;
+                    case SDLK_2:
+                        sound = 2;
+                        break;
+                    case SDLK_3:
+                        sound = 3;
+                        break;
+                    }
                 }
                 
+                break;
                 
 
             }
@@ -349,8 +381,6 @@ int main(int argc, char* argv[]) {
     }
     
     //SDL_StopTextInput();
-    SDL_FreeSurface(image1);
-    SDL_FreeSurface(image2);
     SDL_DestroyWindow(window);
 
     
@@ -369,8 +399,6 @@ int main(int argc, char* argv[]) {
         if(end > 360) {  end = 360;  }
         start = begin;
         finish = end;
-        printf("0 for beep, 1 for StarWar, 2 for train, 3 for bee\n");
-        scanf("%d", &sound);
         printf("select 0/1 to enable/disable sound effect\n");
         scanf("%d", &jump);
         jumpC = jump;
