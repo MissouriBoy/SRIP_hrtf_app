@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
+#include <string.h>
 
 #include "kiss_fft.h"
 
@@ -38,7 +39,7 @@ kiss_fft_cfg cfg_inverse;
 int total_samples = 0;
 
 // starting and ending azimuths
-int start = 10, finish = 100;
+int start = 0, finish = 360;
 int userC;
 int jumpC;
 // FFT storage for convolution with HRTFs during playback
@@ -347,9 +348,9 @@ int main(int argc, char* argv[]) {
             switch (ev.type)
             {
             case SDL_QUIT:
-                return 0;
+                //return 0;
                  isRunning = false;
-                 running = false;
+                 //running = false;
                 break;
             case SDL_MOUSEWHEEL:
                 if(ev.wheel.y > 0)
@@ -361,52 +362,70 @@ int main(int argc, char* argv[]) {
                 break;
             //textbox
             case SDL_KEYDOWN:
-                if(ev.key.keysym.sym == SDLK_RETURN) {
+                /*if(ev.key.keysym.sym == SDLK_RETURN) {
                     isRunning = false;
-                }
+                }*/
                 if(var == 4){
                     switch (ev.key.keysym.sym){
                         case SDLK_0:
-                            strcpy(str, "0");
+                            strcat(str, "0");
+                            printf("%c\n", str[0]);
+                            printf("%c\n", str[1]);
+                            printf("%c\n", str[2]);
                             break;
                         case SDLK_1:
-                            strcpy(str, "1");
+                            strcat(str, "1");
+                            printf("%c\n", str[0]);
+                            printf("%c\n", str[1]);
+                            printf("%c\n", str[2]);
                             break;
                         case SDLK_2:
-                            strcpy(str, "2");
+                            strcat(str, "2");
+                            printf("%c\n", str[0]);
+                            printf("%c\n", str[1]);
+                            printf("%c\n", str[2]);
                             break;
                         case SDLK_3:
-                            strcpy(str, "3");
+                            strcat(str, "3");
+                            printf("%c\n", str[0]);
+                            printf("%c\n", str[1]);
+                            printf("%c\n", str[2]);
                             break;
                         case SDLK_4:
-                            strcpy(str, "4");
+                            strcat(str, "4");
                             break;
                         case SDLK_5:
-                            strcpy(str, "5");
+                            strcat(str, "5");
                             break;
                         case SDLK_6:
-                            strcpy(str, "6");
+                            strcat(str, "6");
                             break;
                         case SDLK_7:
-                            strcpy(str, "7");
+                            strcat(str, "7");
                             break;
                         case SDLK_8:
-                            strcpy(str, "8");
+                            strcat(str, "8");
                             break;
                         case SDLK_9:
-                            strcpy(str, "9");
+                            strcat(str, "9");
                             break;
                         case SDLK_BACKSPACE:
                             memset(str, 0, sizeof str);
                             break;
                         case SDLK_RETURN:
-                            temp = 100*(int)str[0]+10*(int)str[1]+(int)str[0];
-                            start = temp;
+                            temp = 100*(str[0]- '0')+ 10*(str[1] - '0')+ (str[2] - '0');
+                            printf("%d\n", temp);
+                            if(start != 0) {
+                                finish = temp;
+                            } else {
+                                start = temp;
+                            }
                             memset(str, 0, sizeof str);
                             break;
                         case SDLK_ESCAPE:
-                            temp = 100*(int)str[0]+10*(int)str[1]+(int)str[0];
-                            end = temp;
+                            /*temp = 100*(str[0]- '0')+ 10*(str[1] - '0')+ (str[2] - '0');
+                            printf("%d\n", temp);
+                            finish = temp;*/
                             currentImage = menu;
                             var = 0;
                             break;
@@ -505,12 +524,7 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
         SDL_RenderFillRect(renderer, &start_button.draw_rect);
     }
-    
-    //SDL_StopTextInput();
-    //SDL_DestroyWindow(window);
 
-    
-    
     
     // interactive stuff
     //fprintf(stdout, "1 for standard path, 2 for customized path\n ");
