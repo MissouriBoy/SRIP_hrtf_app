@@ -55,6 +55,27 @@ const int AZIMUTH_CNT = 37;
 const int AZIMUTH_INCREMENT_DEGREES = 5;
 hrtf_data hrtfs[37];                        // AZIMUTH CNT
 
+typedef struct {
+    SDL_Rect draw_rect;    // dimensions of button
+    struct {
+        Uint8 r, g, b, a;
+    } colour;
+
+    bool pressed;
+} button_t;
+
+static void button_process_event(button_t *btn, const SDL_Event *ev) {
+    // react on mouse click within button rectangle by setting 'pressed'
+    if(ev->type == SDL_MOUSEBUTTONDOWN) {
+        if(ev->button.button == SDL_BUTTON_LEFT &&
+                ev->button.x >= btn->draw_rect.x &&
+                ev->button.x <= (btn->draw_rect.x + btn->draw_rect.w) &&
+                ev->button.y >= btn->draw_rect.y &&
+                ev->button.y <= (btn->draw_rect.y + btn->draw_rect.h)) {
+            btn->pressed = true;
+        }
+    }
+}
 
 // buf_len should be the number of data point in the stereo `buf`
 // Each sample should have 2 data points; 1 for each ear
@@ -267,6 +288,7 @@ void print_audio_spec(SDL_AudioSpec* spec) {
 
 int main(int argc, char* argv[]) {
     int begin, end, sound, choice, jump;
+    bool running = true;
     
     // SDL stuff
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
@@ -293,6 +315,21 @@ int main(int argc, char* argv[]) {
     chooseEffect = SDL_LoadBMP("SoundE.bmp");
     currentImage = intro;
 
+    SDL_Renderer* renderer = NULL;
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if(!renderer) {   // renderer creation may fail too
+        fprintf(stderr, "create renderer failed: %s\n", SDL_GetError());
+        return 1;
+    }
+
+    button_t start_button = {
+        .colour = { .r = 255, .g = 255, .b = 255, .a = 255, },
+        .draw_rect = { .x = 0, .y = 0, .w = 128, .h = 128 },
+    };
+
+    SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
+    SDL_RenderFillRect(renderer, &start_button.draw_rect);
+
     bool isRunning = true;
     SDL_Event ev;
     int var = -1; // -1 for intro, 0 for menu, 1 for choose path, 2 for choose audio, 3 for choose sound effect
@@ -303,7 +340,9 @@ int main(int argc, char* argv[]) {
             switch (ev.type)
             {
             case SDL_QUIT:
+                return 0;
                  isRunning = false;
+                 running = false;
                 break;
             case SDL_MOUSEWHEEL:
                 if(ev.wheel.y > 0)
@@ -315,6 +354,9 @@ int main(int argc, char* argv[]) {
                 break;
             
             case SDL_KEYDOWN:
+                if(ev.key.keysym.sym == SDLK_RETURN) {
+                    isRunning = false;
+                }
                 if(var == 0){
                     switch (ev.key.keysym.sym)
                     {
@@ -340,7 +382,7 @@ int main(int argc, char* argv[]) {
                         break;
                     case SDLK_1:
                         choice = 2;
-                        SDL_ShowSimpleMessageBox(0, "Path", "Customized Path is selected", window);
+                        //SDL_ShowSimpleMessageBox(0, "Path", "Customized Path is selected", window);
                         break;
                     case SDLK_BACKSPACE:
                         currentImage = menu;
@@ -390,22 +432,23 @@ int main(int argc, char* argv[]) {
 
             }
           
-        
-            /*else if(ev.type == SDL_MOUSEBUTTONDOWN){
-                if(ev.button.button == SDL_BUTTON_LEFT)
-                    currentImage = image3;
-                else if(ev.button.button == SDL_BUTTON_RIGHT)
-                    currentImage = image4;
-            }*/
-           
-            
+            button_process_event(&start_button, &ev);      
+            if(start_button.pressed) {
+                currentImage = chooseEffect;
+                var = 3;
+                start_button.pressed = false;
+            }
         }
+        
+
         SDL_BlitSurface(currentImage, NULL, windowSurface, NULL);
-        SDL_UpdateWindowSurface(window);
+        //SDL_UpdateWindowSurface(window);
+        SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
+        SDL_RenderFillRect(renderer, &start_button.draw_rect);
     }
     
     //SDL_StopTextInput();
-    SDL_DestroyWindow(window);
+    //SDL_DestroyWindow(window);
 
     
     
@@ -423,8 +466,8 @@ int main(int argc, char* argv[]) {
         if(end > 360) {  end = 360;  }
         start = begin;
         finish = end;
-        printf("select 0/1 to enable/disable sound effect\n");
-        scanf("%d", &jump);
+        //printf("select 0/1 to enable/disable sound effect\n");
+        //scanf("%d", &jump);
         jumpC = jump;
     }
     else{
@@ -588,7 +631,7 @@ int main(int argc, char* argv[]) {
     SDL_Event event;
     Uint32 time = SDL_GetTicks();
     Uint32 last_frame_time = time;
-    bool running = true;
+    
 
     // Start playing audio
     SDL_PauseAudioDevice(audio_device, 0);
