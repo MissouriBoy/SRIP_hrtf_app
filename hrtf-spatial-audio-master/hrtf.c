@@ -301,6 +301,7 @@ int main(int argc, char* argv[]) {
     SDL_Surface *chooseP;
     SDL_Surface *chooseA;
     SDL_Surface *chooseEffect;
+    SDL_Surface *InputA;
    
     SDL_Surface *currentImage;
 
@@ -313,6 +314,7 @@ int main(int argc, char* argv[]) {
     chooseP = SDL_LoadBMP("choosePath.bmp");
     chooseA = SDL_LoadBMP("chooseA.bmp");
     chooseEffect = SDL_LoadBMP("SoundE.bmp");
+    InputA = SDL_LoadBMP("azimuth.bmp");
     currentImage = intro;
 
     SDL_Renderer* renderer = NULL;
@@ -332,7 +334,12 @@ int main(int argc, char* argv[]) {
 
     bool isRunning = true;
     SDL_Event ev;
+    int temp;
+    
     int var = -1; // -1 for intro, 0 for menu, 1 for choose path, 2 for choose audio, 3 for choose sound effect
+    char str[3];  // initalize a temp to store azimuth input
+    memset(str, 0, sizeof str);
+    //SDL_StartTextInput();
 
     while(isRunning){
         while (SDL_PollEvent(&ev) !=0)
@@ -352,10 +359,58 @@ int main(int argc, char* argv[]) {
                     var = 0;              
                 }      
                 break;
-            
+            //textbox
             case SDL_KEYDOWN:
                 if(ev.key.keysym.sym == SDLK_RETURN) {
                     isRunning = false;
+                }
+                if(var == 4){
+                    switch (ev.key.keysym.sym){
+                        case SDLK_0:
+                            strcpy(str, "0");
+                            break;
+                        case SDLK_1:
+                            strcpy(str, "1");
+                            break;
+                        case SDLK_2:
+                            strcpy(str, "2");
+                            break;
+                        case SDLK_3:
+                            strcpy(str, "3");
+                            break;
+                        case SDLK_4:
+                            strcpy(str, "4");
+                            break;
+                        case SDLK_5:
+                            strcpy(str, "5");
+                            break;
+                        case SDLK_6:
+                            strcpy(str, "6");
+                            break;
+                        case SDLK_7:
+                            strcpy(str, "7");
+                            break;
+                        case SDLK_8:
+                            strcpy(str, "8");
+                            break;
+                        case SDLK_9:
+                            strcpy(str, "9");
+                            break;
+                        case SDLK_BACKSPACE:
+                            memset(str, 0, sizeof str);
+                            break;
+                        case SDLK_RETURN:
+                            temp = 100*(int)str[0]+10*(int)str[1]+(int)str[0];
+                            start = temp;
+                            memset(str, 0, sizeof str);
+                            break;
+                        case SDLK_ESCAPE:
+                            temp = 100*(int)str[0]+10*(int)str[1]+(int)str[0];
+                            end = temp;
+                            currentImage = menu;
+                            var = 0;
+                            break;
+                    }
                 }
                 if(var == 0){
                     switch (ev.key.keysym.sym)
@@ -372,6 +427,10 @@ int main(int argc, char* argv[]) {
                         currentImage = chooseEffect;
                         var = 3;
                         break;
+                    case SDLK_4:
+                        currentImage = InputA;
+                        var = 4;
+                        break;
                     }
                 }
                 if(var == 1){
@@ -384,7 +443,7 @@ int main(int argc, char* argv[]) {
                         choice = 2;
                         //SDL_ShowSimpleMessageBox(0, "Path", "Customized Path is selected", window);
                         break;
-                    case SDLK_BACKSPACE:
+                    case SDLK_ESCAPE:
                         currentImage = menu;
                         var = 0;
                         break;
@@ -405,7 +464,7 @@ int main(int argc, char* argv[]) {
                     case SDLK_3:
                         sound = 3;
                         break;
-                    case SDLK_BACKSPACE:
+                    case SDLK_ESCAPE:
                         currentImage = menu;
                         var = 0;
                         break;
@@ -420,7 +479,7 @@ int main(int argc, char* argv[]) {
                     case SDLK_1:
                         jump = 0;
                         break;
-                    case SDLK_BACKSPACE:
+                    case SDLK_ESCAPE:
                         currentImage = menu;
                         var = 0;
                         break;
@@ -442,7 +501,7 @@ int main(int argc, char* argv[]) {
         
 
         SDL_BlitSurface(currentImage, NULL, windowSurface, NULL);
-        //SDL_UpdateWindowSurface(window);
+        SDL_UpdateWindowSurface(window);
         SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
         SDL_RenderFillRect(renderer, &start_button.draw_rect);
     }
@@ -456,7 +515,7 @@ int main(int argc, char* argv[]) {
     // interactive stuff
     //fprintf(stdout, "1 for standard path, 2 for customized path\n ");
     //scanf("%d", &choice);
-    if(choice == 2){
+    /*if(choice == 2){
         
         fprintf(stdout, "Please enter starting azimuth:\n ");
         scanf("%d", &begin);
@@ -474,7 +533,7 @@ int main(int argc, char* argv[]) {
         start = 0;
         finish = 360;
         userC = choice;
-    }
+    }*/
    
 
     SDL_AudioSpec obtained_audio_spec;
