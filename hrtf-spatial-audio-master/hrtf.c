@@ -41,7 +41,7 @@ int total_samples = 0;
 // starting and ending azimuths
 int start = 0, finish = 360;
 int userC;
-int jumpC;
+int jumpC = 0;
 // FFT storage for convolution with HRTFs during playback
 kiss_fft_cpx* audio_kiss_buf;    // Audio data, time domain
 kiss_fft_cpx* audio_kiss_freq;   // Audio data, stores a single sample, freq domain
@@ -157,29 +157,65 @@ void fill_audio(void* udata, Uint8* stream, int len ) {
 
         }
         
-        if(jumpC == 1){
-            // random geneartor
-            int odd = rand() % 100; // genearte anything between 0 and 9
-            if(odd > 60){
-                if(reverse == false){
+        if(jumpC == 1){ // increment by 10
+            if(reverse == false){
                     azimuth += AZIMUTH_INCREMENT_DEGREES;
+
                 }else{
                     azimuth -= AZIMUTH_INCREMENT_DEGREES;
                 }
-                
-            }
-            if(odd > 85){
-                if(reverse == false){
+        }
+        else if(jumpC == 2){ // increment by 20
+            if(reverse == false){
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
                     azimuth += AZIMUTH_INCREMENT_DEGREES;
                     azimuth += AZIMUTH_INCREMENT_DEGREES;
                 }else{
                     azimuth -= AZIMUTH_INCREMENT_DEGREES;
                     azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
                 }
-                
-            }
 
         }
+        else if(jumpC == 3){    // increment by 30
+            if(reverse == false){
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                }else{
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                }
+
+        }
+        else if(jumpC == 4){    // increment by 40
+            if(reverse == false){
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                    azimuth += AZIMUTH_INCREMENT_DEGREES;
+                }else{
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                    azimuth -= AZIMUTH_INCREMENT_DEGREES;
+                }
+
+        }
+           
+
+        
         
         sample = 0;
 
@@ -405,18 +441,29 @@ int main(int argc, char* argv[]) {
                         case SDLK_9:
                             strcat(str, "9");
                             break;
-                        case SDLK_BACKSPACE:
-                            memset(str, 0, sizeof str);
+                        case SDLK_SPACE:    // press space to restart the whole process
+                            start = 0;
+                            finish = 360;
                             break;
                         case SDLK_RETURN:
                             temp = 100*(str[0]- '0')+ 10*(str[1] - '0')+ (str[2] - '0');
                             printf("%d\n", temp);
                             if(start != 0) {
                                 strcpy(endA, str);
-                                finish = temp;
+                                if(temp > 360){
+                                    finish = 360;
+                                }else
+                                {
+                                    finish = temp;
+                                }
                             } else {
                                 strcpy(startA, str);
-                                start = temp;
+                                if(temp < 0){
+                                    start = 0;
+                                }else
+                                {
+                                    start = temp;
+                                }
                             }
                             memset(str, 0, sizeof str);
                             break;
@@ -502,17 +549,30 @@ int main(int argc, char* argv[]) {
                     switch (ev.key.keysym.sym)
                     {
                     case SDLK_0:
-                        jump = 1;
-                        strcpy(str, "Sound Effect is enabled!");
+                        jumpC = 0;
+                        strcpy(str, "Speed Level：Default");
                         break;
                     case SDLK_1:
-                        jump = 0;
-                        strcpy(str, "Sound Effect is disabled!");
+                        jumpC = 1;
+                        strcpy(str, "Speed Level： 1");
+                        break;
+                    case SDLK_2:
+                        jumpC = 2;
+                        strcpy(str, "Speed Level： 2");
+                        break;
+                    case SDLK_3:
+                        jumpC = 3;
+                        strcpy(str, "Speed Level： 3");
+                        break;
+                    case SDLK_4:
+                        jumpC = 4;
+                        strcpy(str, "Speed Level： 4");
                         break;
                     case SDLK_ESCAPE:
-                        SDL_ShowSimpleMessageBox(0, "Sound Effect", str, window);
+                        SDL_ShowSimpleMessageBox(0, "Speed", str, window);
                         currentImage = menu;
                         var = 0;
+                        memset(str, 0, sizeof str);
                         break;
                     }
                 }
