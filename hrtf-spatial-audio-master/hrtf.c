@@ -354,44 +354,38 @@ int main(int argc, char* argv[]) {
                  isRunning = false;
                  //running = false;
                 break;
-            case SDL_MOUSEWHEEL:
-                if(ev.wheel.y > 0)
+            case SDL_MOUSEWHEEL: //wheel up and down only available in menu page
+                if(ev.wheel.y > 0 && var == 0){
                     currentImage = intro;
-                else if(ev.wheel.y < 0){
+                    var = -1;
+                }
+                else if(ev.wheel.y < 0 && var == -1){
                     currentImage = menu;
                     var = 0;              
                 }      
                 break;
-            //textbox
             case SDL_KEYDOWN:
                 /*if(ev.key.keysym.sym == SDLK_RETURN) {
                     isRunning = false;
                 }*/
-                if(var == 4){
+                if(var == 4){ // input customized azimuth
                     switch (ev.key.keysym.sym){
                         case SDLK_0:
                             strcat(str, "0");
+                            /*printf("%d\n", start);
+                            printf("%d\n", finish);
                             printf("%c\n", str[0]);
                             printf("%c\n", str[1]);
-                            printf("%c\n", str[2]);
+                            printf("%c\n", str[2]);*/
                             break;
                         case SDLK_1:
                             strcat(str, "1");
-                            printf("%c\n", str[0]);
-                            printf("%c\n", str[1]);
-                            printf("%c\n", str[2]);
                             break;
                         case SDLK_2:
                             strcat(str, "2");
-                            printf("%c\n", str[0]);
-                            printf("%c\n", str[1]);
-                            printf("%c\n", str[2]);
                             break;
                         case SDLK_3:
                             strcat(str, "3");
-                            printf("%c\n", str[0]);
-                            printf("%c\n", str[1]);
-                            printf("%c\n", str[2]);
                             break;
                         case SDLK_4:
                             strcat(str, "4");
@@ -435,6 +429,7 @@ int main(int argc, char* argv[]) {
                             SDL_ShowSimpleMessageBox(0, "Azimuth", str, window);
                             currentImage = menu;
                             var = 0;
+                            memset(str, 0, sizeof str);
                             break;
 
                     }
@@ -443,7 +438,7 @@ int main(int argc, char* argv[]) {
                     switch (ev.key.keysym.sym)
                     {
                     case SDLK_1:
-                        currentImage = chooseP;
+                        currentImage = chooseP; 
                         var = 1;
                         break;
                     case SDLK_2:
@@ -454,10 +449,6 @@ int main(int argc, char* argv[]) {
                         currentImage = chooseEffect;
                         var = 3;
                         break;
-                    case SDLK_4:
-                        currentImage = InputA;
-                        var = 4;
-                        break;
                     }
                 }
                 if(var == 1){
@@ -465,10 +456,14 @@ int main(int argc, char* argv[]) {
                     {
                     case SDLK_0:
                         choice = 1;
+                        
                         break;
                     case SDLK_1:
                         choice = 2;
-                        //SDL_ShowSimpleMessageBox(0, "Path", "Customized Path is selected", window);
+                        break;
+                    case SDLK_RETURN:
+                        currentImage = InputA;
+                        var = 4;
                         break;
                     case SDLK_ESCAPE:
                         currentImage = menu;
@@ -481,19 +476,25 @@ int main(int argc, char* argv[]) {
                     {
                     case SDLK_0:
                         sound = 0;
+                        strcpy(str, "Audio choice: beep");  // use strcpy instead of strcat to avoid adding undesigned string to str.
                         break;
                     case SDLK_1:
                         sound = 1;
+                        strcpy(str, "Audio choice: star war");
                         break;
                     case SDLK_2:
                         sound = 2;
+                        strcpy(str, "Audio choice: train");
                         break;
                     case SDLK_3:
                         sound = 3;
+                        strcpy(str, "Audio choice: bee");
                         break;
                     case SDLK_ESCAPE:
+                        SDL_ShowSimpleMessageBox(0, "Audio", str, window);
                         currentImage = menu;
                         var = 0;
+                        memset(str, 0, sizeof str);
                         break;
                     }
                 }
@@ -502,11 +503,14 @@ int main(int argc, char* argv[]) {
                     {
                     case SDLK_0:
                         jump = 1;
+                        strcpy(str, "Sound Effect is enabled!");
                         break;
                     case SDLK_1:
                         jump = 0;
+                        strcpy(str, "Sound Effect is disabled!");
                         break;
                     case SDLK_ESCAPE:
+                        SDL_ShowSimpleMessageBox(0, "Sound Effect", str, window);
                         currentImage = menu;
                         var = 0;
                         break;
