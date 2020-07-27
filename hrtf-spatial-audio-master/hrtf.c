@@ -338,7 +338,9 @@ int main(int argc, char* argv[]) {
     int temp;
     
     int var = -1; // -1 for intro, 0 for menu, 1 for choose path, 2 for choose audio, 3 for choose sound effect
-    char str[3];  // initalize a temp to store azimuth input
+    char str[100];  // initalize a temp to store azimuth input
+    char endA[4];
+    char startA[4];
     memset(str, 0, sizeof str);
     //SDL_StartTextInput();
 
@@ -416,19 +418,25 @@ int main(int argc, char* argv[]) {
                             temp = 100*(str[0]- '0')+ 10*(str[1] - '0')+ (str[2] - '0');
                             printf("%d\n", temp);
                             if(start != 0) {
+                                strcpy(endA, str);
                                 finish = temp;
                             } else {
+                                strcpy(startA, str);
                                 start = temp;
                             }
                             memset(str, 0, sizeof str);
                             break;
                         case SDLK_ESCAPE:
-                            /*temp = 100*(str[0]- '0')+ 10*(str[1] - '0')+ (str[2] - '0');
-                            printf("%d\n", temp);
-                            finish = temp;*/
+                            strcat(str, "Starting azimuth is: ");
+                            strcat(str, startA);
+                            strcat(str, "\n");
+                            strcat(str, "Ending azimuth is: ");
+                            strcat(str, endA);
+                            SDL_ShowSimpleMessageBox(0, "Azimuth", str, window);
                             currentImage = menu;
                             var = 0;
                             break;
+
                     }
                 }
                 if(var == 0){
