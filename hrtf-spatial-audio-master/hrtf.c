@@ -219,7 +219,7 @@ void fill_audio(void* udata, Uint8* stream, int len ) {
         
         sample = 0;
 
-        printf("Azimuth: %d\n", azimuth);
+        // printf("Azimuth: %d\n", azimuth);
     }
 
     int num_samples = len / SAMPLE_SIZE / 2;
@@ -274,7 +274,7 @@ void fill_audio(void* udata, Uint8* stream, int len ) {
 
 
 void print_audio_spec(SDL_AudioSpec* spec) {
-    printf("\tFrequency: %u\n", spec->freq);
+    //printf("\tFrequency: %u\n", spec->freq);
     const char* sformat;
     switch (spec->format) {
         case AUDIO_S8:
@@ -316,11 +316,11 @@ void print_audio_spec(SDL_AudioSpec* spec) {
             sformat = S_AUDIO_UNKNOWN;
             break;
     }
-    printf("\tFormat: %s\n", sformat);
-    printf("\tChannels: %hhu\n", spec->channels);
-    printf("\tSilence: %hhu\n", spec->silence);
-    printf("\tSamples: %hu\n", spec->samples);
-    printf("\tBuffer Size: %u\n", spec->size);
+    //printf("\tFormat: %s\n", sformat);
+    //printf("\tChannels: %hhu\n", spec->channels);
+    //printf("\tSilence: %hhu\n", spec->silence);
+    //printf("\tSamples: %hu\n", spec->samples);
+    //printf("\tBuffer Size: %u\n", spec->size);
 }
 
 int main(int argc, char* argv[]) {
@@ -342,6 +342,15 @@ int main(int argc, char* argv[]) {
    
     SDL_Surface *currentImage;
 
+    SDL_AudioSpec obtained_audio_spec;
+    SDL_AudioSpec desired_audio_spec;
+    SDL_AudioCVT audio_cvt;
+    SDL_AudioCVT hrtf_audio_cvt;
+    SDL_AudioDeviceID audio_device;
+    SDL_AudioSpec* file_audio_spec;
+    Uint8* audio_buf;
+    Uint32 audio_len;
+    Uint8* audio_pos;
     
     window = SDL_CreateWindow("HRTF", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 440,SDL_WINDOW_SHOWN);
     windowSurface = SDL_GetWindowSurface(window);
@@ -363,7 +372,7 @@ int main(int argc, char* argv[]) {
 
     button_t start_button = {
         .colour = { .r = 255, .g = 255, .b = 255, .a = 255, },
-        .draw_rect = { .x = 0, .y = 0, .w = 128, .h = 128 },
+        .draw_rect = { .x = 160, .y = 400, .w = 320, .h = 32 },
     };
 
     SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
@@ -386,9 +395,8 @@ int main(int argc, char* argv[]) {
             switch (ev.type)
             {
             case SDL_QUIT:
-                //return 0;
-                 isRunning = false;
-                 //running = false;
+                return 0;
+                isRunning = false;
                 break;
             case SDL_MOUSEWHEEL: //wheel up and down only available in menu page
                 if(ev.wheel.y > 0 && var == 0){
@@ -401,9 +409,6 @@ int main(int argc, char* argv[]) {
                 }      
                 break;
             case SDL_KEYDOWN:
-                /*if(ev.key.keysym.sym == SDLK_RETURN) {
-                    isRunning = false;
-                }*/
                 if(var == 4){ // input customized azimuth
                     switch (ev.key.keysym.sym){
                         case SDLK_0:
@@ -581,51 +586,15 @@ int main(int argc, char* argv[]) {
                 
 
             }
-          
-            button_process_event(&start_button, &ev);      
+            if(var == 0) {
+                button_process_event(&start_button, &ev); 
+            }     
             if(start_button.pressed) {
-                currentImage = chooseEffect;
-                var = 3;
+                currentImage = menu;
+                var = 0;
                 start_button.pressed = false;
-            }
-        }
-        
+                //isRunning = false;
 
-        SDL_BlitSurface(currentImage, NULL, windowSurface, NULL);
-        SDL_UpdateWindowSurface(window);
-        SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
-        SDL_RenderFillRect(renderer, &start_button.draw_rect);
-    }
-
-    
-    // interactive stuff
-    //fprintf(stdout, "1 for standard path, 2 for customized path\n ");
-    //scanf("%d", &choice);
-    /*if(choice == 2){
-        
-        fprintf(stdout, "Please enter starting azimuth:\n ");
-        scanf("%d", &begin);
-        fprintf(stdout, "Please enter ending azimuth:\n ");
-        scanf("%d", &end);
-        if(begin < 0) {  begin = 0;  }
-        if(end > 360) {  end = 360;  }
-        start = begin;
-        finish = end;
-        //printf("select 0/1 to enable/disable sound effect\n");
-        //scanf("%d", &jump);
-        jumpC = jump;
-    }
-    else{
-        start = 0;
-        finish = 360;
-        userC = choice;
-    }*/
-   
-
-    SDL_AudioSpec obtained_audio_spec;
-    SDL_AudioSpec desired_audio_spec;
-    SDL_AudioCVT audio_cvt;
-    SDL_AudioCVT hrtf_audio_cvt;
 
     // Audio output format
     desired_audio_spec.freq = SAMPLE_RATE;
@@ -636,23 +605,20 @@ int main(int argc, char* argv[]) {
     desired_audio_spec.userdata = NULL;
 
 
-    printf("Device count: %d\n", SDL_GetNumAudioDevices(0));
+    //printf("Device count: %d\n", SDL_GetNumAudioDevices(0));
 
     const char* device_name = SDL_GetAudioDeviceName(0, 0);
-    printf("Device name: %s\n", device_name);
+    //printf("Device name: %s\n", device_name);
 
-    SDL_AudioDeviceID audio_device = SDL_OpenAudioDevice(device_name, 0, &desired_audio_spec, &obtained_audio_spec, 0);
+    audio_device = SDL_OpenAudioDevice(device_name, 0, &desired_audio_spec, &obtained_audio_spec, 0);
 
-    printf("Desired Audio Spec:\n");
+    //printf("Desired Audio Spec:\n");
     print_audio_spec(&desired_audio_spec);
 
-    printf("Obtained Audio Spec:\n");
+    //printf("Obtained Audio Spec:\n");
     print_audio_spec(&obtained_audio_spec);
 
-    SDL_AudioSpec* file_audio_spec;
-    Uint8* audio_buf;
-    Uint32 audio_len;
-    Uint8* audio_pos;
+    
 
 
     // Open audio file
@@ -690,8 +656,8 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    printf("Wav Spec:\n");
-    print_audio_spec(file_audio_spec);
+    //printf("Wav Spec:\n");
+    //print_audio_spec(file_audio_spec);
 
 
     // Use mono, the audio will be stereo when the HRTFs are applied
@@ -699,12 +665,12 @@ int main(int argc, char* argv[]) {
                       file_audio_spec->format, file_audio_spec->channels, file_audio_spec->freq,
                       obtained_audio_spec.format, 1, obtained_audio_spec.freq);
 
-    printf("About to convert wav\n");
+    //printf("About to convert wav\n");
     audio_cvt.buf = malloc(audio_len * audio_cvt.len_mult);
     audio_cvt.len = audio_len;
     memcpy(audio_cvt.buf, audio_buf, audio_len);
     SDL_ConvertAudio(&audio_cvt);
-    printf("Converted wav\n");
+    //printf("Converted wav\n");
 
     free(audio_buf);
     audio_buf = audio_cvt.buf;
@@ -745,7 +711,7 @@ int main(int argc, char* argv[]) {
     for (int azimuth = 0; azimuth < 37; azimuth++) {
         char filename[100];
         sprintf(filename, HRTF_FILE_FORMAT_MIT, 0, 0, azimuth * 5);
-        printf("Loading: %s\n", filename);
+        //printf("Loading: %s\n", filename);
 
         SDL_AudioSpec audiofile_spec;
         Uint8* hrtf_buf;
@@ -787,13 +753,19 @@ int main(int argc, char* argv[]) {
 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
+                printf("Closing down");
                 running = false;
             }
 
             if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
                 running = false;
             }
-
+            button_process_event(&start_button, &ev);    
+            if(start_button.pressed) {
+                printf("button pressed");
+                running = false;
+                start_button.pressed = false;
+            }
         }
 
         last_frame_time = time;
@@ -803,8 +775,15 @@ int main(int argc, char* argv[]) {
             SDL_Delay(sleep_time);
         }
     }
+            }
+        }
+        
 
-
+        SDL_BlitSurface(currentImage, NULL, windowSurface, NULL);
+        SDL_UpdateWindowSurface(window);
+        SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
+        SDL_RenderFillRect(renderer, &start_button.draw_rect);
+    }
     // Cleanup
     SDL_DestroyWindow(window);
     SDL_FreeWAV(audio_buf);
