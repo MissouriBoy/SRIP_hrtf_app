@@ -323,11 +323,7 @@ void print_audio_spec(SDL_AudioSpec* spec) {
     printf("\tBuffer Size: %u\n", spec->size);
 }
 
-int main(int argc, char* argv[]) {
-    int begin, end, sound, choice, jump;
-    bool running = true;
-    
-    // SDL stuff
+void GUI(int begin, int end, int sound, int choice, int jump){
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDL_Window *window;
     SDL_Surface *windowSurface;
@@ -343,7 +339,7 @@ int main(int argc, char* argv[]) {
     SDL_Surface *currentImage;
 
     
-    window = SDL_CreateWindow("HRTF", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 440,SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("HRTF", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 440, SDL_WINDOW_SHOWN);
     windowSurface = SDL_GetWindowSurface(window);
 
     intro = SDL_LoadBMP("test1.bmp");
@@ -354,20 +350,20 @@ int main(int argc, char* argv[]) {
     InputA = SDL_LoadBMP("azimuth.bmp");
     currentImage = intro;
 
-    SDL_Renderer* renderer = NULL;
+    /*SDL_Renderer* renderer = NULL;
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if(!renderer) {   // renderer creation may fail too
         fprintf(stderr, "create renderer failed: %s\n", SDL_GetError());
         return 1;
-    }
+    }*/
 
     button_t start_button = {
         .colour = { .r = 255, .g = 255, .b = 255, .a = 255, },
         .draw_rect = { .x = 0, .y = 0, .w = 128, .h = 128 },
     };
 
-    SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
-    SDL_RenderFillRect(renderer, &start_button.draw_rect);
+    //SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
+    //SDL_RenderFillRect(renderer, &start_button.draw_rect);
 
     bool isRunning = true;
     SDL_Event ev;
@@ -593,39 +589,18 @@ int main(int argc, char* argv[]) {
 
         SDL_BlitSurface(currentImage, NULL, windowSurface, NULL);
         SDL_UpdateWindowSurface(window);
-        SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
-        SDL_RenderFillRect(renderer, &start_button.draw_rect);
+        //SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
+        //SDL_RenderFillRect(renderer, &start_button.draw_rect);
     }
 
-    
-    // interactive stuff
-    //fprintf(stdout, "1 for standard path, 2 for customized path\n ");
-    //scanf("%d", &choice);
-    /*if(choice == 2){
-        
-        fprintf(stdout, "Please enter starting azimuth:\n ");
-        scanf("%d", &begin);
-        fprintf(stdout, "Please enter ending azimuth:\n ");
-        scanf("%d", &end);
-        if(begin < 0) {  begin = 0;  }
-        if(end > 360) {  end = 360;  }
-        start = begin;
-        finish = end;
-        //printf("select 0/1 to enable/disable sound effect\n");
-        //scanf("%d", &jump);
-        jumpC = jump;
-    }
-    else{
-        start = 0;
-        finish = 360;
-        userC = choice;
-    }*/
-   
-
+}
+//Uint8* audio_buf, Uint32 audio_len, SDL_AudioSpec* file_audio_spec, Uint8* audio_pos
+SDL_AudioDeviceID MakeAudio(int begin, int end, int sound, int choice, int jump){
     SDL_AudioSpec obtained_audio_spec;
     SDL_AudioSpec desired_audio_spec;
     SDL_AudioCVT audio_cvt;
     SDL_AudioCVT hrtf_audio_cvt;
+
 
     // Audio output format
     desired_audio_spec.freq = SAMPLE_RATE;
@@ -653,8 +628,6 @@ int main(int argc, char* argv[]) {
     Uint8* audio_buf;
     Uint32 audio_len;
     Uint8* audio_pos;
-
-
     // Open audio file
     file_audio_spec = malloc(sizeof(SDL_AudioSpec));
     if (!file_audio_spec) {
@@ -771,6 +744,18 @@ int main(int argc, char* argv[]) {
 
         free(hrtf_buf);
     }
+    return audio_device;
+}
+
+int main(int argc, char* argv[]) {
+    int begin, end, sound, choice, jump;
+    bool running = true;
+    
+
+    GUI(0, 360, 0, 0, 0);
+    SDL_AudioDeviceID audio_device = MakeAudio(begin, end, sound, choice, jump);
+
+    
 
 
     SDL_Event event;
@@ -802,7 +787,13 @@ int main(int argc, char* argv[]) {
                      SDL_PauseAudioDevice(audio_device, 0);
                      playing = true;
                  }
-                 
+            }
+            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_1) {
+                GUI(0, 360, 0, 0, 0);    
+                audio_device = MakeAudio(begin, end, sound, choice, jump);
+            }
+            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
+                SDL_PauseAudioDevice(audio_device, 1);
             }
         }
 
@@ -813,11 +804,11 @@ int main(int argc, char* argv[]) {
             SDL_Delay(sleep_time);
         }
     }
+    
 
 
     // Cleanup
-    SDL_DestroyWindow(window);
-    SDL_FreeWAV(audio_buf);
+    //SDL_FreeWAV(audio_buf);
     SDL_CloseAudio();
 
     for (int i = 0; i < AZIMUTH_CNT; i++) {
