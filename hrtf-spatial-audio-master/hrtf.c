@@ -272,329 +272,6 @@ void fill_audio(void* udata, Uint8* stream, int len ) {
     sample += num_samples;
 }
 
-
-void print_audio_spec(SDL_AudioSpec* spec) {
-    printf("\tFrequency: %u\n", spec->freq);
-    const char* sformat;
-    switch (spec->format) {
-        case AUDIO_S8:
-            sformat = S_AUDIO_S8;
-            break;
-        case AUDIO_U8:
-            sformat = S_AUDIO_U8;
-            break;
-
-        case AUDIO_S16LSB:
-            sformat = S_AUDIO_S16LSB;
-            break;
-        case AUDIO_S16MSB:
-            sformat = S_AUDIO_S16MSB;
-            break;
-
-        case AUDIO_U16LSB:
-            sformat = S_AUDIO_U16LSB;
-            break;
-        case AUDIO_U16MSB:
-            sformat = S_AUDIO_U16MSB;
-            break;
-
-        case AUDIO_S32LSB:
-            sformat = S_AUDIO_S32LSB;
-            break;
-        case AUDIO_S32MSB:
-            sformat = S_AUDIO_S32MSB;
-            break;
-
-        case AUDIO_F32LSB:
-            sformat = S_AUDIO_F32LSB;
-            break;
-        case AUDIO_F32MSB:
-            sformat = S_AUDIO_F32MSB;
-            break;
-
-        default:
-            sformat = S_AUDIO_UNKNOWN;
-            break;
-    }
-    printf("\tFormat: %s\n", sformat);
-    printf("\tChannels: %hhu\n", spec->channels);
-    printf("\tSilence: %hhu\n", spec->silence);
-    printf("\tSamples: %hu\n", spec->samples);
-    printf("\tBuffer Size: %u\n", spec->size);
-}
-
-void GUI(int begin, int end, int sound, int choice, int jump){
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    SDL_Window *window;
-    SDL_Surface *windowSurface;
-
-    //SDL_StartTextInput();
-    SDL_Surface *intro;
-    SDL_Surface *menu;
-    SDL_Surface *chooseP;
-    SDL_Surface *chooseA;
-    SDL_Surface *chooseEffect;
-    SDL_Surface *InputA;
-   
-    SDL_Surface *currentImage;
-
-    
-    window = SDL_CreateWindow("HRTF", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 440, SDL_WINDOW_SHOWN);
-    windowSurface = SDL_GetWindowSurface(window);
-
-    intro = SDL_LoadBMP("test1.bmp");
-    menu = SDL_LoadBMP("Menu.bmp");
-    chooseP = SDL_LoadBMP("choosePath.bmp");
-    chooseA = SDL_LoadBMP("chooseA.bmp");
-    chooseEffect = SDL_LoadBMP("SoundE.bmp");
-    InputA = SDL_LoadBMP("azimuth.bmp");
-    currentImage = intro;
-
-    /*SDL_Renderer* renderer = NULL;
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if(!renderer) {   // renderer creation may fail too
-        fprintf(stderr, "create renderer failed: %s\n", SDL_GetError());
-        return 1;
-    }*/
-
-    button_t start_button = {
-        .colour = { .r = 255, .g = 255, .b = 255, .a = 255, },
-        .draw_rect = { .x = 0, .y = 0, .w = 128, .h = 128 },
-    };
-
-    //SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
-    //SDL_RenderFillRect(renderer, &start_button.draw_rect);
-
-    bool isRunning = true;
-    SDL_Event ev;
-    int temp;
-    
-    int var = -1; // -1 for intro, 0 for menu, 1 for choose path, 2 for choose audio, 3 for choose sound effect
-    char str[100];  // initalize a temp to store azimuth input
-    char endA[4];
-    char startA[4];
-    memset(str, 0, sizeof str);
-    //SDL_StartTextInput();
-
-    while(isRunning){
-        while (SDL_PollEvent(&ev) !=0)
-        {
-            switch (ev.type)
-            {
-            case SDL_QUIT:
-                //return 0;
-                 isRunning = false;
-                 //running = false;
-                break;
-            case SDL_MOUSEWHEEL: //wheel up and down only available in menu page
-                if(ev.wheel.y > 0 && var == 0){
-                    currentImage = intro;
-                    var = -1;
-                }
-                else if(ev.wheel.y < 0 && var == -1){
-                    currentImage = menu;
-                    var = 0;              
-                }      
-                break;
-            case SDL_KEYDOWN:
-                /*if(ev.key.keysym.sym == SDLK_RETURN) {
-                    isRunning = false;
-                }*/
-                if(var == 4){ // input customized azimuth
-                    switch (ev.key.keysym.sym){
-                        case SDLK_0:
-                            strcat(str, "0");
-                            /*printf("%d\n", start);
-                            printf("%d\n", finish);
-                            printf("%c\n", str[0]);
-                            printf("%c\n", str[1]);
-                            printf("%c\n", str[2]);*/
-                            break;
-                        case SDLK_1:
-                            strcat(str, "1");
-                            break;
-                        case SDLK_2:
-                            strcat(str, "2");
-                            break;
-                        case SDLK_3:
-                            strcat(str, "3");
-                            break;
-                        case SDLK_4:
-                            strcat(str, "4");
-                            break;
-                        case SDLK_5:
-                            strcat(str, "5");
-                            break;
-                        case SDLK_6:
-                            strcat(str, "6");
-                            break;
-                        case SDLK_7:
-                            strcat(str, "7");
-                            break;
-                        case SDLK_8:
-                            strcat(str, "8");
-                            break;
-                        case SDLK_9:
-                            strcat(str, "9");
-                            break;
-                        case SDLK_SPACE:    // press space to restart the whole process
-                            start = 0;
-                            finish = 360;
-                            break;
-                        case SDLK_RETURN:
-                            temp = 100*(str[0]- '0')+ 10*(str[1] - '0')+ (str[2] - '0');
-                            printf("%d\n", temp);
-                            if(start != 0) {
-                                strcpy(endA, str);
-                                if(temp > 360){
-                                    finish = 360;
-                                }else
-                                {
-                                    finish = temp;
-                                }
-                            } else {
-                                strcpy(startA, str);
-                                if(temp < 0){
-                                    start = 0;
-                                }else
-                                {
-                                    start = temp;
-                                }
-                            }
-                            memset(str, 0, sizeof str);
-                            break;
-                        case SDLK_ESCAPE:
-                            strcat(str, "Starting azimuth is: ");
-                            strcat(str, startA);
-                            strcat(str, "\n");
-                            strcat(str, "Ending azimuth is: ");
-                            strcat(str, endA);
-                            SDL_ShowSimpleMessageBox(0, "Azimuth", str, window);
-                            currentImage = menu;
-                            var = 0;
-                            memset(str, 0, sizeof str);
-                            break;
-
-                    }
-                }
-                if(var == 0){
-                    switch (ev.key.keysym.sym)
-                    {
-                    case SDLK_1:
-                        currentImage = chooseP; 
-                        var = 1;
-                        break;
-                    case SDLK_2:
-                        currentImage = chooseA;
-                        var = 2;
-                        break;
-                    case SDLK_3:
-                        currentImage = chooseEffect;
-                        var = 3;
-                        break;
-                    }
-                }
-                if(var == 1){
-                    switch (ev.key.keysym.sym)
-                    {
-                    case SDLK_0:
-                        choice = 1;
-                        
-                        break;
-                    case SDLK_1:
-                        choice = 2;
-                        break;
-                    case SDLK_RETURN:
-                        currentImage = InputA;
-                        var = 4;
-                        break;
-                    case SDLK_ESCAPE:
-                        currentImage = menu;
-                        var = 0;
-                        break;
-                    }
-                }
-                if(var == 2){
-                    switch (ev.key.keysym.sym)
-                    {
-                    case SDLK_0:
-                        sound = 0;
-                        strcpy(str, "Audio choice: beep");  // use strcpy instead of strcat to avoid adding undesigned string to str.
-                        break;
-                    case SDLK_1:
-                        sound = 1;
-                        strcpy(str, "Audio choice: star war");
-                        break;
-                    case SDLK_2:
-                        sound = 2;
-                        strcpy(str, "Audio choice: train");
-                        break;
-                    case SDLK_3:
-                        sound = 3;
-                        strcpy(str, "Audio choice: bee");
-                        break;
-                    case SDLK_ESCAPE:
-                        SDL_ShowSimpleMessageBox(0, "Audio", str, window);
-                        currentImage = menu;
-                        var = 0;
-                        memset(str, 0, sizeof str);
-                        break;
-                    }
-                }
-                if(var == 3){
-                    switch (ev.key.keysym.sym)
-                    {
-                    case SDLK_0:
-                        jumpC = 0;
-                        strcpy(str, "Speed Level：Default");
-                        break;
-                    case SDLK_1:
-                        jumpC = 1;
-                        strcpy(str, "Speed Level： 1");
-                        break;
-                    case SDLK_2:
-                        jumpC = 2;
-                        strcpy(str, "Speed Level： 2");
-                        break;
-                    case SDLK_3:
-                        jumpC = 3;
-                        strcpy(str, "Speed Level： 3");
-                        break;
-                    case SDLK_4:
-                        jumpC = 4;
-                        strcpy(str, "Speed Level： 4");
-                        break;
-                    case SDLK_ESCAPE:
-                        SDL_ShowSimpleMessageBox(0, "Speed", str, window);
-                        currentImage = menu;
-                        var = 0;
-                        memset(str, 0, sizeof str);
-                        break;
-                    }
-                }
-                
-                break;
-                
-
-            }
-          
-            button_process_event(&start_button, &ev);      
-            if(start_button.pressed) {
-                currentImage = chooseEffect;
-                var = 3;
-                start_button.pressed = false;
-            }
-        }
-        
-
-        SDL_BlitSurface(currentImage, NULL, windowSurface, NULL);
-        SDL_UpdateWindowSurface(window);
-        //SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
-        //SDL_RenderFillRect(renderer, &start_button.draw_rect);
-    }
-
-}
-//Uint8* audio_buf, Uint32 audio_len, SDL_AudioSpec* file_audio_spec, Uint8* audio_pos
 SDL_AudioDeviceID MakeAudio(int begin, int end, int sound, int choice, int jump){
     SDL_AudioSpec obtained_audio_spec;
     SDL_AudioSpec desired_audio_spec;
@@ -747,24 +424,358 @@ SDL_AudioDeviceID MakeAudio(int begin, int end, int sound, int choice, int jump)
     return audio_device;
 }
 
+void print_audio_spec(SDL_AudioSpec* spec) {
+    printf("\tFrequency: %u\n", spec->freq);
+    const char* sformat;
+    switch (spec->format) {
+        case AUDIO_S8:
+            sformat = S_AUDIO_S8;
+            break;
+        case AUDIO_U8:
+            sformat = S_AUDIO_U8;
+            break;
+
+        case AUDIO_S16LSB:
+            sformat = S_AUDIO_S16LSB;
+            break;
+        case AUDIO_S16MSB:
+            sformat = S_AUDIO_S16MSB;
+            break;
+
+        case AUDIO_U16LSB:
+            sformat = S_AUDIO_U16LSB;
+            break;
+        case AUDIO_U16MSB:
+            sformat = S_AUDIO_U16MSB;
+            break;
+
+        case AUDIO_S32LSB:
+            sformat = S_AUDIO_S32LSB;
+            break;
+        case AUDIO_S32MSB:
+            sformat = S_AUDIO_S32MSB;
+            break;
+
+        case AUDIO_F32LSB:
+            sformat = S_AUDIO_F32LSB;
+            break;
+        case AUDIO_F32MSB:
+            sformat = S_AUDIO_F32MSB;
+            break;
+
+        default:
+            sformat = S_AUDIO_UNKNOWN;
+            break;
+    }
+    printf("\tFormat: %s\n", sformat);
+    printf("\tChannels: %hhu\n", spec->channels);
+    printf("\tSilence: %hhu\n", spec->silence);
+    printf("\tSamples: %hu\n", spec->samples);
+    printf("\tBuffer Size: %u\n", spec->size);
+}
+
+void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID audio_device){
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+    SDL_Window *window;
+    SDL_Surface *windowSurface;
+
+    //SDL_StartTextInput();
+    SDL_Surface *intro;
+    SDL_Surface *menu;
+    SDL_Surface *chooseP;
+    SDL_Surface *chooseA;
+    SDL_Surface *chooseEffect;
+    SDL_Surface *InputA;
+   
+    SDL_Surface *currentImage;
+
+    
+    window = SDL_CreateWindow("HRTF", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 440, SDL_WINDOW_SHOWN);
+    windowSurface = SDL_GetWindowSurface(window);
+
+    intro = SDL_LoadBMP("test1.bmp");
+    menu = SDL_LoadBMP("Menu.bmp");
+    chooseP = SDL_LoadBMP("choosePath.bmp");
+    chooseA = SDL_LoadBMP("chooseA.bmp");
+    chooseEffect = SDL_LoadBMP("SoundE.bmp");
+    InputA = SDL_LoadBMP("azimuth.bmp");
+    currentImage = intro;
+
+    /*SDL_Renderer* renderer = NULL;
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if(!renderer) {   // renderer creation may fail too
+        fprintf(stderr, "create renderer failed: %s\n", SDL_GetError());
+        return 1;
+    }*/
+
+    button_t start_button = {
+        .colour = { .r = 255, .g = 255, .b = 255, .a = 255, },
+        .draw_rect = { .x = 0, .y = 0, .w = 128, .h = 128 },
+    };
+
+    //SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
+    //SDL_RenderFillRect(renderer, &start_button.draw_rect);
+    SDL_AudioDeviceID device = device;
+    bool isRunning = true;
+    SDL_Event ev;
+    int temp;
+    bool playing = false;
+    
+    int var = -1; // -1 for intro, 0 for menu, 1 for choose path, 2 for choose audio, 3 for choose sound effect
+    char str[100];  // initalize a temp to store azimuth input
+    char endA[4];
+    char startA[4];
+    memset(str, 0, sizeof str);
+    //SDL_StartTextInput();
+
+    while(isRunning){
+        while (SDL_PollEvent(&ev) !=0)
+        {
+            if (ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_SPACE) {
+                 if(playing == true){
+                     SDL_PauseAudioDevice(audio_device, 1);
+                     playing = false;
+                 }
+                 else if(playing == false){
+                     SDL_PauseAudioDevice(audio_device, 0);
+                     playing = true;
+                 }
+            }
+            switch (ev.type)
+            {
+            case SDL_QUIT:
+                //return 0;
+                 isRunning = false;
+                 //running = false;
+                break;
+            case SDL_MOUSEWHEEL: //wheel up and down only available in menu page
+                if(ev.wheel.y > 0 && var == 0){
+                    currentImage = intro;
+                    var = -1;
+                }
+                else if(ev.wheel.y < 0 && var == -1){
+                    currentImage = menu;
+                    var = 0;              
+                }      
+                break;
+            case SDL_KEYDOWN:
+                /*if(ev.key.keysym.sym == SDLK_RETURN) {
+                    isRunning = false;
+                }*/
+                if(var == 4){ // input customized azimuth
+                    switch (ev.key.keysym.sym){
+                        case SDLK_0:
+                            strcat(str, "0");
+                            break;
+                        case SDLK_1:
+                            strcat(str, "1");
+                            break;
+                        case SDLK_2:
+                            strcat(str, "2");
+                            break;
+                        case SDLK_3:
+                            strcat(str, "3");
+                            break;
+                        case SDLK_4:
+                            strcat(str, "4");
+                            break;
+                        case SDLK_5:
+                            strcat(str, "5");
+                            break;
+                        case SDLK_6:
+                            strcat(str, "6");
+                            break;
+                        case SDLK_7:
+                            strcat(str, "7");
+                            break;
+                        case SDLK_8:
+                            strcat(str, "8");
+                            break;
+                        case SDLK_9:
+                            strcat(str, "9");
+                            break;
+                        case SDLK_SPACE:    // press space to restart the whole process
+                            start = 0;
+                            finish = 360;
+                            break;
+                        case SDLK_RETURN:
+                            temp = 100*(str[0]- '0')+ 10*(str[1] - '0')+ (str[2] - '0');
+                            printf("%d\n", temp);
+                            if(start != 0) {
+                                strcpy(endA, str);
+                                if(temp > 360){
+                                    finish = 360;
+                                }else
+                                {
+                                    finish = temp;
+                                }
+                            } else {
+                                strcpy(startA, str);
+                                if(temp < 0){
+                                    start = 0;
+                                }else
+                                {
+                                    start = temp;
+                                }
+                            }
+                            memset(str, 0, sizeof str);
+                            break;
+                        case SDLK_ESCAPE:
+                            strcat(str, "Starting azimuth is: ");
+                            strcat(str, startA);
+                            strcat(str, "\n");
+                            strcat(str, "Ending azimuth is: ");
+                            strcat(str, endA);
+                            SDL_ShowSimpleMessageBox(0, "Azimuth", str, window);
+                            currentImage = menu;
+                            var = 0;
+                            memset(str, 0, sizeof str);
+                            break;
+
+                    }
+                }
+                if(var == 0){
+                    switch (ev.key.keysym.sym)
+                    {
+                    case SDLK_1:
+                        currentImage = chooseP; 
+                        var = 1;
+                        break;
+                    case SDLK_2:
+                        currentImage = chooseA;
+                        var = 2;
+                        break;
+                    case SDLK_3:
+                        currentImage = chooseEffect;
+                        var = 3;
+                        break;
+                    case SDLK_RETURN:
+                        audio_device = MakeAudio(begin, end, sound, choice, jump);
+                        SDL_PauseAudioDevice(audio_device, 0);
+                        playing = true;
+                        break;
+                    case SDLK_9:
+                        SDL_DestroyWindow(window);  
+                        GUI(0, 360, 0, 0, 0, device);
+                        
+                        break;
+                    }
+                }
+                if(var == 1){
+                    switch (ev.key.keysym.sym)
+                    {
+                    case SDLK_0:
+                        choice = 1;
+                        
+                        break;
+                    case SDLK_1:
+                        choice = 2;
+                        break;
+                    case SDLK_RETURN:
+                        currentImage = InputA;
+                        var = 4;
+                        break;
+                    case SDLK_ESCAPE:
+                        currentImage = menu;
+                        var = 0;
+                        break;
+                    }
+                }
+                if(var == 2){
+                    switch (ev.key.keysym.sym)
+                    {
+                    case SDLK_0:
+                        sound = 0;
+                        strcpy(str, "Audio choice: beep");  // use strcpy instead of strcat to avoid adding undesigned string to str.
+                        break;
+                    case SDLK_1:
+                        sound = 1;
+                        strcpy(str, "Audio choice: star war");
+                        break;
+                    case SDLK_2:
+                        sound = 2;
+                        strcpy(str, "Audio choice: train");
+                        break;
+                    case SDLK_3:
+                        sound = 3;
+                        strcpy(str, "Audio choice: bee");
+                        break;
+                    case SDLK_ESCAPE:
+                        SDL_ShowSimpleMessageBox(0, "Audio", str, window);
+                        currentImage = menu;
+                        var = 0;
+                        memset(str, 0, sizeof str);
+                        break;
+                    }
+                }
+                if(var == 3){
+                    switch (ev.key.keysym.sym)
+                    {
+                    case SDLK_0:
+                        jumpC = 0;
+                        strcpy(str, "Speed Level：Default");
+                        break;
+                    case SDLK_1:
+                        jumpC = 1;
+                        strcpy(str, "Speed Level： 1");
+                        break;
+                    case SDLK_2:
+                        jumpC = 2;
+                        strcpy(str, "Speed Level： 2");
+                        break;
+                    case SDLK_3:
+                        jumpC = 3;
+                        strcpy(str, "Speed Level： 3");
+                        break;
+                    case SDLK_4:
+                        jumpC = 4;
+                        strcpy(str, "Speed Level： 4");
+                        break;
+                    case SDLK_ESCAPE:
+                        SDL_ShowSimpleMessageBox(0, "Speed", str, window);
+                        currentImage = menu;
+                        var = 0;
+                        memset(str, 0, sizeof str);
+                        break;
+                    }
+                }
+                
+                break;
+                
+
+            }
+          
+            button_process_event(&start_button, &ev);      
+            if(start_button.pressed) {
+                currentImage = chooseEffect;
+                var = 3;
+                start_button.pressed = false;
+            }
+        }
+        
+
+        SDL_BlitSurface(currentImage, NULL, windowSurface, NULL);
+        SDL_UpdateWindowSurface(window);
+        //SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
+        //SDL_RenderFillRect(renderer, &start_button.draw_rect);
+    }
+
+}
+//Uint8* audio_buf, Uint32 audio_len, SDL_AudioSpec* file_audio_spec, Uint8* audio_pos
+
 int main(int argc, char* argv[]) {
-    int begin, end, sound, choice, jump;
-    bool running = true;
+    //int begin, end, sound, choice, jump;
+    //bool running = true;
+    SDL_AudioDeviceID device;
+    GUI(0, 360, 0, 0, 0, device);
     
-
-    GUI(0, 360, 0, 0, 0);
-    SDL_AudioDeviceID audio_device = MakeAudio(begin, end, sound, choice, jump);
-
-    
-
-
+    /* 
     SDL_Event event;
     Uint32 time = SDL_GetTicks();
     Uint32 last_frame_time = time;
-    
 
-    // Start playing audio
-    SDL_PauseAudioDevice(audio_device, 0);
+    Start playing audio
+    SDL_PauseAudioDevice(device, 0);
     bool playing = true;
     while (running) {
         Uint32 new_time = SDL_GetTicks();
@@ -780,21 +791,19 @@ int main(int argc, char* argv[]) {
             }
             if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
                  if(playing == true){
-                     SDL_PauseAudioDevice(audio_device, 1);
+                     SDL_PauseAudioDevice(device, 1);
                      playing = false;
                  }
                  else if(playing == false){
-                     SDL_PauseAudioDevice(audio_device, 0);
+                     SDL_PauseAudioDevice(device, 0);
                      playing = true;
                  }
             }
-            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_1) {
-                GUI(0, 360, 0, 0, 0);    
-                audio_device = MakeAudio(begin, end, sound, choice, jump);
-            }
             if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
-                SDL_PauseAudioDevice(audio_device, 1);
+                GUI(0, 360, 0, 0, 0, device);    
+               
             }
+
         }
 
         last_frame_time = time;
@@ -814,7 +823,7 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < AZIMUTH_CNT; i++) {
         free_hrtf_data(&hrtfs[i]);
     }
-
+    */
     SDL_Quit();
 
     return 0;
