@@ -655,6 +655,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                         playing = true;
                         break;
                     case SDLK_9:
+                        SDL_PauseAudioDevice(audio_device, 1);
                         SDL_DestroyWindow(window);  
                         GUI(0, 360, 0, 0, 0, device);
                         
@@ -767,63 +768,15 @@ int main(int argc, char* argv[]) {
     //int begin, end, sound, choice, jump;
     //bool running = true;
     SDL_AudioDeviceID device;
-    GUI(0, 360, 0, 0, 0, device);
+    GUI(0, 360, 3, 0, 0, device);
     
-    /* 
-    SDL_Event event;
-    Uint32 time = SDL_GetTicks();
-    Uint32 last_frame_time = time;
-
-    Start playing audio
-    SDL_PauseAudioDevice(device, 0);
-    bool playing = true;
-    while (running) {
-        Uint32 new_time = SDL_GetTicks();
-        time = new_time;
-
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = false;
-            }
-
-            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-                running = false;
-            }
-            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
-                 if(playing == true){
-                     SDL_PauseAudioDevice(device, 1);
-                     playing = false;
-                 }
-                 else if(playing == false){
-                     SDL_PauseAudioDevice(device, 0);
-                     playing = true;
-                 }
-            }
-            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
-                GUI(0, 360, 0, 0, 0, device);    
-               
-            }
-
-        }
-
-        last_frame_time = time;
-
-        if (time - last_frame_time < FRAME_TIME) {
-            Uint32 sleep_time = FRAME_TIME - (time - last_frame_time);
-            SDL_Delay(sleep_time);
-        }
-    }
-    
-
-
     // Cleanup
     //SDL_FreeWAV(audio_buf);
     SDL_CloseAudio();
-
     for (int i = 0; i < AZIMUTH_CNT; i++) {
         free_hrtf_data(&hrtfs[i]);
     }
-    */
+    
     SDL_Quit();
 
     return 0;
