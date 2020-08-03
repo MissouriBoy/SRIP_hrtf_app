@@ -510,7 +510,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
 
     button_t start_button = {
         .colour = { .r = 255, .g = 255, .b = 255, .a = 255, },
-        .draw_rect = { .x = 0, .y = 0, .w = 128, .h = 128 },
+        .draw_rect = { .x = 160, .y = 400, .w = 320, .h = 32 },
     };
 
     //SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
@@ -531,6 +531,9 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
     while(isRunning){
         while (SDL_PollEvent(&ev) !=0)
         {
+            if(ev.type == SDL_MOUSEBUTTONUP) {
+                printf("Button Pressed!\n");
+            }
             if (ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_SPACE) {
                  if(playing == true){
                      SDL_PauseAudioDevice(audio_device, 1);
@@ -540,6 +543,14 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                      SDL_PauseAudioDevice(audio_device, 0);
                      playing = true;
                  }
+            }
+            button_process_event(&start_button, &ev);      
+            if(start_button.pressed) {
+                printf("Button Pressed!\n");
+                audio_device = MakeAudio(begin, end, sound, choice, jump);
+                SDL_PauseAudioDevice(audio_device, 0);
+                playing = true;
+                start_button.pressed = false;
             }
             switch (ev.type)
             {
@@ -745,22 +756,14 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                 
 
             }
-          
-            button_process_event(&start_button, &ev);      
-            if(start_button.pressed) {
-                currentImage = chooseEffect;
-                var = 3;
-                start_button.pressed = false;
-            }
+            
         }
         
 
         SDL_BlitSurface(currentImage, NULL, windowSurface, NULL);
         SDL_UpdateWindowSurface(window);
-        //SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
-        //SDL_RenderFillRect(renderer, &start_button.draw_rect);
     }
-
+    return;
 }
 //Uint8* audio_buf, Uint32 audio_len, SDL_AudioSpec* file_audio_spec, Uint8* audio_pos
 
