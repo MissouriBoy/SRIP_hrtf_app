@@ -1,8 +1,7 @@
 SDL*
-
 *.exe
 *.txt
-b*
+b
 *.json
 *.suo
 *.sqlite

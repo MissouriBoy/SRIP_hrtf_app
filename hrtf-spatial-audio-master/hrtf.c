@@ -17,7 +17,7 @@
 
 const char HRTF_FILE_FORMAT_MIT[] = "mit/elev%d/H%de%03da.wav";
 const char AUDIO_FILE[] = "./beep.wav";
-const char BEE_FILE[] = "./fail-buzzer-01.wav";
+const char BEE_FILE[] = "./bee.wav";
 const char StarWar_FILE[] = "./StarWars3.wav";
 const char Train_FILE[] = "./steam-train.wav";// /train-whistle-01.wav";
 
@@ -313,7 +313,7 @@ SDL_AudioDeviceID MakeAudio(int begin, int end, int sound, int choice, int jump)
     }
 
     // specified audio file is used
-    if(sound == 0) {
+    if(sound == 3) {
         if (!SDL_LoadWAV(BEE_FILE, file_audio_spec, &audio_buf, &audio_len)) {
             printf("Could not load audio file: %s", BEE_FILE);
             SDL_Quit();
