@@ -19,7 +19,7 @@ const char HRTF_FILE_FORMAT_MIT[] = "mit/elev%d/H%de%03da.wav";
 const char AUDIO_FILE[] = "./beep.wav";
 const char BEE_FILE[] = "./fail-buzzer-01.wav";
 const char StarWar_FILE[] = "./StarWars3.wav";
-const char Train_FILE[] = "./train-whistle-01.wav";
+const char Train_FILE[] = "./steam-train.wav";// /train-whistle-01.wav";
 
 const float FPS = 60.0f;
 const float FRAME_TIME = 16.6666667f;   // 1000 / FPS
@@ -546,11 +546,15 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
             }
             button_process_event(&start_button, &ev);      
             if(start_button.pressed) {
-                printf("Button Pressed!\n");
+                if(!playing) {
                 audio_device = MakeAudio(begin, end, sound, choice, jump);
                 SDL_PauseAudioDevice(audio_device, 0);
                 playing = true;
                 start_button.pressed = false;
+                } else {
+                    SDL_PauseAudioDevice(audio_device, 1);
+                    playing = false;
+                }
             }
             switch (ev.type)
             {
@@ -667,9 +671,14 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                         break;
                     case SDLK_9:
                         SDL_PauseAudioDevice(audio_device, 1);
-                        SDL_DestroyWindow(window);  
-                        GUI(0, 360, 0, 0, 0, device);
-                        
+                        SDL_DestroyWindow(window); 
+
+                        //SDL_FreeWAV(audio_buf);
+                        SDL_CloseAudio();
+                        for (int i = 0; i < AZIMUTH_CNT; i++) {
+                            free_hrtf_data(&hrtfs[i]);
+                        }
+                        return;
                         break;
                     }
                 }
@@ -770,9 +779,11 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
 int main(int argc, char* argv[]) {
     //int begin, end, sound, choice, jump;
     //bool running = true;
-    SDL_AudioDeviceID device;
-    GUI(0, 360, 3, 0, 0, device);
     
+    while(1){
+        SDL_AudioDeviceID device;
+        GUI(0, 360, 3, 0, 0, device);
+    }
     // Cleanup
     //SDL_FreeWAV(audio_buf);
     SDL_CloseAudio();
