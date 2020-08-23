@@ -17,7 +17,7 @@
 
 const char HRTF_FILE_FORMAT_MIT[] = "mit/elev%d/H%de%03da.wav";
 const char AUDIO_FILE[] = "./beep.wav";
-const char BEE_FILE[] = "./bee.wav";
+const char BEE_FILE[] = "./fail-buzzer-01.wav";
 const char StarWar_FILE[] = "./StarWars3.wav";
 const char Train_FILE[] = "./steam-train.wav";// /train-whistle-01.wav";
 
@@ -37,7 +37,7 @@ kiss_fft_cfg cfg_inverse;
 
 // Number of samples stored in the audio file
 int total_samples = 0;
-
+double accuracy = 100.0;
 // starting and ending azimuths
 int start = 0, finish = 360;
 int userC;
@@ -313,7 +313,7 @@ SDL_AudioDeviceID MakeAudio(int begin, int end, int sound, int choice, int jump)
     }
 
     // specified audio file is used
-    if(sound == 3) {
+    if(sound == 0) {
         if (!SDL_LoadWAV(BEE_FILE, file_audio_spec, &audio_buf, &audio_len)) {
             printf("Could not load audio file: %s", BEE_FILE);
             SDL_Quit();
@@ -478,7 +478,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDL_Window *window;
     SDL_Surface *windowSurface;
-
+    
     //SDL_StartTextInput();
     SDL_Surface *intro;
     SDL_Surface *menu;
@@ -486,6 +486,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
     SDL_Surface *chooseA;
     SDL_Surface *chooseEffect;
     SDL_Surface *InputA;
+    SDL_Surface *testing;
    
     SDL_Surface *currentImage;
 
@@ -494,6 +495,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
     windowSurface = SDL_GetWindowSurface(window);
 
     intro = SDL_LoadBMP("test1.bmp");
+    testing = SDL_LoadBMP("test2.bmp");
     menu = SDL_LoadBMP("Menu.bmp");
     chooseP = SDL_LoadBMP("choosePath.bmp");
     chooseA = SDL_LoadBMP("chooseA.bmp");
@@ -512,7 +514,22 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
         .colour = { .r = 255, .g = 255, .b = 255, .a = 255, },
         .draw_rect = { .x = 160, .y = 400, .w = 320, .h = 32 },
     };
-
+    // buttons for testing
+    button_t left_button = {
+        .draw_rect = { .x = 10, .y = 200, .w = 160, .h = 32 },
+    };
+    button_t frontleft_button = {
+        .draw_rect = { .x = 10, .y = 10, .w = 160, .h = 32 },
+    };
+    button_t front_button = {
+        .draw_rect = { .x = 160, .y = 10, .w = 160, .h = 32 },
+    };
+    button_t frontright_button = {
+        .draw_rect = { .x = 480, .y = 10, .w = 160, .h = 32 },
+    };
+    button_t right_button = {
+        .draw_rect = { .x = 480, .y = 200, .w = 160, .h = 32 },
+    };
     //SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
     //SDL_RenderFillRect(renderer, &start_button.draw_rect);
     SDL_AudioDeviceID device = device;
@@ -521,7 +538,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
     int temp;
     bool playing = false;
     
-    int var = -1; // -1 for intro, 0 for menu, 1 for choose path, 2 for choose audio, 3 for choose sound effect
+    int var = -1; // -1 for intro, 0 for menu, 1 for choose path, 2 for choose audio, 3 for choose sound effect, 5 for testing
     char str[100];  // initalize a temp to store azimuth input
     char endA[4];
     char startA[4];
@@ -532,7 +549,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
         while (SDL_PollEvent(&ev) !=0)
         {
             if(ev.type == SDL_MOUSEBUTTONUP) {
-                printf("Button Pressed!\n");
+                //printf("Button Pressed!\n");
             }
             if (ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_SPACE) {
                  if(playing == true){
@@ -544,7 +561,22 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                      playing = true;
                  }
             }
-            button_process_event(&start_button, &ev);      
+            button_process_event(&start_button, &ev); 
+            button_process_event(&front_button, &ev);  
+            button_process_event(&frontleft_button, &ev);  
+            button_process_event(&frontright_button, &ev);  
+            button_process_event(&left_button, &ev);  
+            button_process_event(&right_button, &ev);
+            if( var == 5 ){
+                if (left_button.pressed || right_button.pressed || frontleft_button.pressed ||front_button.pressed || frontright_button.pressed){
+                    printf("Button Pressed!\n"); 
+                    front_button.pressed = false;
+                    frontleft_button.pressed = false;
+                    frontright_button.pressed = false;
+                    left_button.pressed = false;
+                    right_button.pressed = false;
+                }
+            }    
             if(start_button.pressed) {
                 if(!playing) {
                 audio_device = MakeAudio(begin, end, sound, choice, jump);
@@ -669,18 +701,32 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                         SDL_PauseAudioDevice(audio_device, 0);
                         playing = true;
                         break;
-                    case SDLK_9:
+                    case SDLK_TAB:
                         SDL_PauseAudioDevice(audio_device, 1);
                         SDL_DestroyWindow(window); 
-
-                        //SDL_FreeWAV(audio_buf);
-                        SDL_CloseAudio();
-                        for (int i = 0; i < AZIMUTH_CNT; i++) {
-                            free_hrtf_data(&hrtfs[i]);
-                        }
-                        return;
+                    case SDLK_4:
+                        currentImage = testing;
+                        var = 5;
+                   
+                    }
+                }
+                // testing page (WIP)
+                if(var == 5){  
+                    switch (ev.key.keysym.sym)
+                    {
+                    case SDLK_RETURN:
+                        start = 90;
+                        finish = 270;
+                        audio_device = MakeAudio(begin, end, sound, choice, jump);
+                        SDL_PauseAudioDevice(audio_device, 0);
+                        playing = true;
                         break;
                     }
+                    if (playing == false){
+                        //printf(AZIMUTH_CNT)
+                    }
+
+
                 }
                 if(var == 1){
                     switch (ev.key.keysym.sym)
