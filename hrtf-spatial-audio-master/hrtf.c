@@ -39,6 +39,8 @@ kiss_fft_cfg cfg_inverse;
 int total_samples = 0;
 double accuracy = 100.0;
 // starting and ending azimuths
+bool testMode = false;
+int azimuth = 0;
 int start = 0, finish = 360;
 int userC;
 int jumpC = 0;
@@ -121,7 +123,7 @@ void free_hrtf_data(hrtf_data* data) {
 void fill_audio(void* udata, Uint8* stream, int len ) {
     
     static int sample = 0;
-    static int azimuth = 0;
+   
     if(azimuth < start ) {
         azimuth = start;
     }
@@ -218,8 +220,10 @@ void fill_audio(void* udata, Uint8* stream, int len ) {
         
         
         sample = 0;
-
-        printf("Azimuth: %d\n", azimuth);
+        if(testMode = false){
+             printf("Azimuth: %d\n", azimuth);
+        }
+        // only print azimuth value if not testing
     }
 
     int num_samples = len / SAMPLE_SIZE / 2;
@@ -569,7 +573,10 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
             button_process_event(&right_button, &ev);
             if( var == 5 ){
                 if (left_button.pressed || right_button.pressed || frontleft_button.pressed ||front_button.pressed || frontright_button.pressed){
+                    // stop the audio when button is pressed
                     printf("Button Pressed!\n"); 
+                    SDL_PauseAudioDevice(audio_device, 1);
+                    playing = false;
                     front_button.pressed = false;
                     frontleft_button.pressed = false;
                     frontright_button.pressed = false;
@@ -712,6 +719,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                 }
                 // testing page (WIP)
                 if(var == 5){  
+                    testMode = true;
                     switch (ev.key.keysym.sym)
                     {
                     case SDLK_RETURN:
@@ -721,9 +729,25 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                         SDL_PauseAudioDevice(audio_device, 0);
                         playing = true;
                         break;
+                    case SDLK_ESCAPE:
+                        currentImage = menu;
+                        var = 0;
+                        break;
                     }
+                    printf("%d", playing);
                     if (playing == false){
-                        //printf(AZIMUTH_CNT)
+                        if(front_button.pressed){
+                             front_button.pressed = false;
+                             // buggy - not window being poped
+                             if(azimuth < 30 || azimuth > 330){
+                                 strcpy(str, "The aduio is accurate");
+                                 SDL_ShowSimpleMessageBox(0, "Audio", str, window);
+                             }
+                             else{
+                                 strcpy(str, "The aduio is not accurate");
+                                 SDL_ShowSimpleMessageBox(0, "Audio", str, window);
+                             }
+                        }
                     }
 
 
