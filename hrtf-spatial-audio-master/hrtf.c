@@ -481,6 +481,18 @@ void print_audio_spec(SDL_AudioSpec* spec) {
     printf("\tBuffer Size: %u\n", spec->size);
 }
 
+char * toArray(int number)
+    {
+        int n = log10(number) + 1;
+        int i;
+      char *numberArray = calloc(n, sizeof(char));
+        for ( i = 0; i < n; ++i, number /= 10 )
+        {
+            numberArray[i] = number % 10;
+        }
+        return numberArray;
+    }
+
 void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID audio_device){
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDL_Window *window;
@@ -549,10 +561,13 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
     char str[100];  // initalize a temp to store azimuth input
     char endA[4];
     char startA[4];
+
+    char accA[10];
     memset(str, 0, sizeof str);
     //SDL_StartTextInput();
 
     while(isRunning){
+
         while (SDL_PollEvent(&ev) !=0)
         {
             if(ev.type == SDL_MOUSEBUTTONUP) {
@@ -776,16 +791,19 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                         playing = true;
                         break;
                     case SDLK_ESCAPE:
-                        SDL_PauseAudioDevice(audio_device, 1);
+                         SDL_PauseAudioDevice(audio_device, 1);
                         playing = false;  
                         currentImage = menu;
                         var = 0;
-                        printf("%d \n", correct);
-                        printf("%d \n", totalGuess);
                         accuracy = (double)correct/totalGuess;
                         accuracy = 100*accuracy;
-                        printf("average: %f%c", accuracy, '%');
+                        sprintf(accA,"%ld", (int)accuracy);
+                        strcat(str, "Accuracy: ");
+                        strcat(str, accA);
+                        strcat(str, "%");
+                        SDL_ShowSimpleMessageBox(0, "Testing", str, window);
                         break;
+
                     }
 
                 }
