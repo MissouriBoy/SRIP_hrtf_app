@@ -218,12 +218,10 @@ void fill_audio(void* udata, Uint8* stream, int len ) {
 
         }
            
+        sample = 0;
 
         
-        
-        sample = 0;
-        printf("Azimuth: %d\n", azimuth);
-        if(testMode = false){
+        if(testMode == false){
              printf("Azimuth: %d\n", azimuth);
         }
         // only print azimuth value if not testing
@@ -780,7 +778,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                 }
                 // testing page (WIP)
                 if(var == 5){  
-                    //testMode = true;
+                    testMode = true;
                     switch (ev.key.keysym.sym)
                     {
                     case SDLK_RETURN:
