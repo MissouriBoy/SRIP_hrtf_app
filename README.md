@@ -9,7 +9,6 @@ As of now, there are not many online tools available to learn about spatial audi
 <h1>Team</h1>
 Academic Advisor: Professor Truong Nguyen <br>
 
-Title
 <table style="width: 100%;">
   <caption style="text-align:right">Contact Information</caption>
   <tr>
