@@ -8,8 +8,30 @@ As of now, there are not many online tools available to learn about spatial audi
 
 <h1>Team</h1>
 Academic Advisor: Professor Truong Nguyen <br>
-Software Development: Branson Beihl, Songyu Lu 
-<hr>
+
+Title
+<table style="width: 100%;">
+  <caption style="text-align:right">Contact Information</caption>
+  <tr>
+    <th colspan="2"><b>Name</b></td>
+    <th><b>Email</b></td>
+  </tr>
+  <tbody>
+    <tr>
+      <td>Songyu</td>
+      <td>Lu</td>
+      <td>sol009@ucsd.edu</td>
+    </tr>
+  </tbody>
+  <tbody>
+    <tr>
+      <td>Branson</td>
+      <td>Beihl</td>
+      <td>bbeihl@ucsd.edu</td>
+    </tr>
+  </tbody>
+</table>
+
 Credit to Ryan Huffman's hrtf-spatial-audio project, which this project was based upon. 
 
 
