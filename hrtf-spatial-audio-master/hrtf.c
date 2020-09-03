@@ -16,6 +16,7 @@
 #include "hrtf.h"
 
 const char HRTF_FILE_FORMAT_MIT[] = "mit/elev%d/H%de%03da.wav";
+const char HRTF_FILE_FORMAT_CIPIC[] = "cipic/subject%03d/e%da%03d.wav";
 const char AUDIO_FILE[] = "./beep.wav";
 const char BEE_FILE[] = "./fail-buzzer-01.wav";
 const char StarWar_FILE[] = "./StarWars3.wav";
@@ -34,6 +35,8 @@ const int SAMPLE_RATE = 44100;
 kiss_fft_cfg cfg_forward;
 kiss_fft_cfg cfg_inverse;
 
+// stores which subject HRTF data being used
+int subject = 0;
 
 // Number of samples stored in the audio file
 int total_samples = 0;
@@ -235,9 +238,11 @@ void fill_audio(void* udata, Uint8* stream, int len ) {
     int azimuth_idx = azimuth / AZIMUTH_INCREMENT_DEGREES;
     
     // Because the HRIR recordings are only from 0-180, we swap them when > 180
-    if (azimuth > 180) {
-        swap = true;
-        azimuth_idx = 35 - (azimuth_idx % 37);
+    if(!subject) {
+        if (azimuth > 180) {
+            swap = true;
+            azimuth_idx = 35 - (azimuth_idx % 37);
+        }
     }
     
     hrtf_data* data = &hrtfs[azimuth_idx];
@@ -318,7 +323,7 @@ SDL_AudioDeviceID MakeAudio(int begin, int end, int sound, int choice, int jump)
     }
 
     // specified audio file is used
-    if(sound == 0) {
+    if(sound == 3) {
         if (!SDL_LoadWAV(BEE_FILE, file_audio_spec, &audio_buf, &audio_len)) {
             printf("Could not load audio file: %s", BEE_FILE);
             SDL_Quit();
@@ -396,11 +401,20 @@ SDL_AudioDeviceID MakeAudio(int begin, int end, int sound, int choice, int jump)
         audio_kiss_buf[idx].r = ((float*)audio_buf)[i];
         audio_kiss_buf[idx].i = 0;
     }
+    int limit = 72;
+    if(!subject) {
+        limit = 37;
+    }
 
-    for (int azimuth = 0; azimuth < 37; azimuth++) {
+    for (int azimuth = 0; azimuth < limit; azimuth++) {
         char filename[100];
-        sprintf(filename, HRTF_FILE_FORMAT_MIT, 0, 0, azimuth * 5);
-        printf("Loading: %s\n", filename);
+        if(!subject){
+            sprintf(filename, HRTF_FILE_FORMAT_MIT, 0, 0, azimuth * 5);
+            printf("Loading: %s\n", filename, 0, 0, azimuth * 5);
+        } else {
+            sprintf(filename, HRTF_FILE_FORMAT_CIPIC, subject, 0, azimuth * 5);
+            printf("Loading: %s\n", filename, subject, 0, azimuth * 5);
+        }
 
         SDL_AudioSpec audiofile_spec;
         Uint8* hrtf_buf;
@@ -533,19 +547,19 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
     };
     // buttons for testing
     button_t left_button = {
-        .draw_rect = { .x = 10, .y = 200, .w = 160, .h = 32 },
+        .draw_rect = { .x = 17, .y = 94, .w = 39, .h = 32 },
     };
     button_t backleft_button = {
-        .draw_rect = { .x = 10, .y = 10, .w = 160, .h = 32 },
+        .draw_rect = { .x = 17, .y = 290, .w = 80, .h = 32 },
     };
     button_t back_button = {
-        .draw_rect = { .x = 160, .y = 10, .w = 160, .h = 32 },
+        .draw_rect = { .x = 280, .y = 290, .w = 65, .h = 32 },
     };
     button_t backright_button = {
-        .draw_rect = { .x = 480, .y = 10, .w = 160, .h = 32 },
+        .draw_rect = { .x = 525, .y = 290, .w = 97, .h = 32 },
     };
     button_t right_button = {
-        .draw_rect = { .x = 480, .y = 200, .w = 160, .h = 32 },
+        .draw_rect = { .x = 560, .y = 94, .w = 53, .h = 32 },
     };
     //SDL_SetRenderDrawColor(renderer, start_button.colour.r, start_button.colour.g, start_button.colour.b, start_button.colour.a);
     //SDL_RenderFillRect(renderer, &start_button.draw_rect);
@@ -746,8 +760,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                             break;
 
                     }
-                }
-                if(var == 0){
+                } else if(var == 0){
                     switch (ev.key.keysym.sym)
                     {
                     case SDLK_1:
@@ -773,11 +786,12 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                     case SDLK_4:
                         currentImage = testing;
                         var = 5;
-                   
+                        break;
+                    case SDLK_5:
+                        var = 6;
+                        break;
                     }
-                }
-                // testing page (WIP)
-                if(var == 5){  
+                } else if(var == 5){   // testing page (WIP)
                     testMode = true;
                     switch (ev.key.keysym.sym)
                     {
@@ -804,8 +818,59 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
 
                     }
 
-                }
-                if(var == 1){
+                } else if(var == 6) {
+                    switch (ev.key.keysym.sym){
+                        case SDLK_0:
+                            strcat(str, "0");
+                            break;
+                        case SDLK_1:
+                            strcat(str, "1");
+                            break;
+                        case SDLK_2:
+                            strcat(str, "2");
+                            break;
+                        case SDLK_3:
+                            strcat(str, "3");
+                            break;
+                        case SDLK_4:
+                            strcat(str, "4");
+                            break;
+                        case SDLK_5:
+                            strcat(str, "5");
+                            break;
+                        case SDLK_6:
+                            strcat(str, "6");
+                            break;
+                        case SDLK_7:
+                            strcat(str, "7");
+                            break;
+                        case SDLK_8:
+                            strcat(str, "8");
+                            break;
+                        case SDLK_9:
+                            strcat(str, "9");
+                            break;
+                        case SDLK_SPACE:    // press space to restart the whole process
+                            subject = 0;
+                            break;
+                        case SDLK_RETURN:
+                            temp = 100*(str[0]- '0')+ 10*(str[1] - '0')+ (str[2] - '0');
+                            char msg[100];
+                            sprintf(msg, "Subject: %d", temp);
+                            SDL_ShowSimpleMessageBox(0, "Subject", msg, window);
+                            subject = temp;
+                            memset(str, 0, sizeof str);
+                            break;
+                        case SDLK_ESCAPE:
+                            //strcat(str, "Starting azimuth is: %03d\n", subject);
+                            //SDL_ShowSimpleMessageBox(0, "Subject", str, window);
+                            currentImage = menu;
+                            var = 0;
+                            memset(str, 0, sizeof str);
+                            break;
+
+                    }
+                } else if(var == 1){
                     switch (ev.key.keysym.sym)
                     {
                     case SDLK_0:
@@ -824,8 +889,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                         var = 0;
                         break;
                     }
-                }
-                if(var == 2){
+                } else if(var == 2){
                     switch (ev.key.keysym.sym)
                     {
                     case SDLK_0:
@@ -851,8 +915,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                         memset(str, 0, sizeof str);
                         break;
                     }
-                }
-                if(var == 3){
+                } else if(var == 3){
                     switch (ev.key.keysym.sym)
                     {
                     case SDLK_0:
