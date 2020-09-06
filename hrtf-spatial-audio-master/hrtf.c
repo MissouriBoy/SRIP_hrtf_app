@@ -282,6 +282,56 @@ void fill_audio(void* udata, Uint8* stream, int len ) {
     sample += num_samples;
 }
 
+void print_audio_spec(SDL_AudioSpec* spec) {
+    printf("\tFrequency: %u\n", spec->freq);
+    const char* sformat;
+    switch (spec->format) {
+        case AUDIO_S8:
+            sformat = S_AUDIO_S8;
+            break;
+        case AUDIO_U8:
+            sformat = S_AUDIO_U8;
+            break;
+
+        case AUDIO_S16LSB:
+            sformat = S_AUDIO_S16LSB;
+            break;
+        case AUDIO_S16MSB:
+            sformat = S_AUDIO_S16MSB;
+            break;
+
+        case AUDIO_U16LSB:
+            sformat = S_AUDIO_U16LSB;
+            break;
+        case AUDIO_U16MSB:
+            sformat = S_AUDIO_U16MSB;
+            break;
+
+        case AUDIO_S32LSB:
+            sformat = S_AUDIO_S32LSB;
+            break;
+        case AUDIO_S32MSB:
+            sformat = S_AUDIO_S32MSB;
+            break;
+
+        case AUDIO_F32LSB:
+            sformat = S_AUDIO_F32LSB;
+            break;
+        case AUDIO_F32MSB:
+            sformat = S_AUDIO_F32MSB;
+            break;
+
+        default:
+            sformat = S_AUDIO_UNKNOWN;
+            break;
+    }
+    printf("\tFormat: %s\n", sformat);
+    printf("\tChannels: %hhu\n", spec->channels);
+    printf("\tSilence: %hhu\n", spec->silence);
+    printf("\tSamples: %hu\n", spec->samples);
+    printf("\tBuffer Size: %u\n", spec->size);
+}
+
 SDL_AudioDeviceID MakeAudio(int begin, int end, int sound, int choice, int jump){
     SDL_AudioSpec obtained_audio_spec;
     SDL_AudioSpec desired_audio_spec;
@@ -441,56 +491,6 @@ SDL_AudioDeviceID MakeAudio(int begin, int end, int sound, int choice, int jump)
         free(hrtf_buf);
     }
     return audio_device;
-}
-
-void print_audio_spec(SDL_AudioSpec* spec) {
-    printf("\tFrequency: %u\n", spec->freq);
-    const char* sformat;
-    switch (spec->format) {
-        case AUDIO_S8:
-            sformat = S_AUDIO_S8;
-            break;
-        case AUDIO_U8:
-            sformat = S_AUDIO_U8;
-            break;
-
-        case AUDIO_S16LSB:
-            sformat = S_AUDIO_S16LSB;
-            break;
-        case AUDIO_S16MSB:
-            sformat = S_AUDIO_S16MSB;
-            break;
-
-        case AUDIO_U16LSB:
-            sformat = S_AUDIO_U16LSB;
-            break;
-        case AUDIO_U16MSB:
-            sformat = S_AUDIO_U16MSB;
-            break;
-
-        case AUDIO_S32LSB:
-            sformat = S_AUDIO_S32LSB;
-            break;
-        case AUDIO_S32MSB:
-            sformat = S_AUDIO_S32MSB;
-            break;
-
-        case AUDIO_F32LSB:
-            sformat = S_AUDIO_F32LSB;
-            break;
-        case AUDIO_F32MSB:
-            sformat = S_AUDIO_F32MSB;
-            break;
-
-        default:
-            sformat = S_AUDIO_UNKNOWN;
-            break;
-    }
-    printf("\tFormat: %s\n", sformat);
-    printf("\tChannels: %hhu\n", spec->channels);
-    printf("\tSilence: %hhu\n", spec->silence);
-    printf("\tSamples: %hu\n", spec->samples);
-    printf("\tBuffer Size: %u\n", spec->size);
 }
 
 char * toArray(int number)
