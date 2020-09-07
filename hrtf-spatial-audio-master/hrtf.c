@@ -518,6 +518,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
     SDL_Surface *chooseEffect;
     SDL_Surface *InputA;
     SDL_Surface *testing;
+    SDL_Surface *customize;
    
     SDL_Surface *currentImage;
 
@@ -532,6 +533,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
     chooseA = SDL_LoadBMP("chooseA.bmp");
     chooseEffect = SDL_LoadBMP("SoundE.bmp");
     InputA = SDL_LoadBMP("azimuth.bmp");
+    customize = SDL_LoadBMP("Custome.bmp");
     currentImage = intro;
 
     /*SDL_Renderer* renderer = NULL;
@@ -788,6 +790,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                         var = 5;
                         break;
                     case SDLK_5:
+                        currentImage = customize;
                         var = 6;
                         break;
                     }
@@ -855,15 +858,16 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                             break;
                         case SDLK_RETURN:
                             temp = 100*(str[0]- '0')+ 10*(str[1] - '0')+ (str[2] - '0');
-                            char msg[100];
-                            sprintf(msg, "Subject: %d", temp);
-                            SDL_ShowSimpleMessageBox(0, "Subject", msg, window);
+                            printf("%d\n", temp);
+                            strcpy(endA, str);
                             subject = temp;
                             memset(str, 0, sizeof str);
                             break;
                         case SDLK_ESCAPE:
-                            //strcat(str, "Starting azimuth is: %03d\n", subject);
-                            //SDL_ShowSimpleMessageBox(0, "Subject", str, window);
+                            strcat(str, "Subject selected is: ");
+                            strcat(str, endA);
+                            strcat(str, "\n");
+                            SDL_ShowSimpleMessageBox(0, "Azimuth", str, window);
                             currentImage = menu;
                             var = 0;
                             memset(str, 0, sizeof str);
