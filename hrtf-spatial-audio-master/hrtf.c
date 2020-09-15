@@ -350,7 +350,7 @@ SDL_AudioDeviceID MakeAudio(int begin, int end, int sound, int choice, int jump)
 
     printf("Device count: %d\n", SDL_GetNumAudioDevices(0));
 
-    const char* device_name = SDL_GetAudioDeviceName(0, 0);
+    const char* device_name = SDL_GetAudioDeviceName(1, 0);
     printf("Device name: %s\n", device_name);
 
     SDL_AudioDeviceID audio_device = SDL_OpenAudioDevice(device_name, 0, &desired_audio_spec, &obtained_audio_spec, 0);
@@ -967,15 +967,16 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
 //Uint8* audio_buf, Uint32 audio_len, SDL_AudioSpec* file_audio_spec, Uint8* audio_pos
 
 int main(int argc, char* argv[]) {
-    //int begin, end, sound, choice, jump;
-    //bool running = true;
+    int begin = 0,
+        end = 360, 
+        sound = 0,
+        choice = 0,
+        jump = 0;
+        
+    SDL_AudioDeviceID device;
+    GUI(begin, end, sound, choice, jump, device);
     
-    while(1){
-        SDL_AudioDeviceID device;
-        GUI(0, 360, 3, 0, 0, device);
-    }
     // Cleanup
-    //SDL_FreeWAV(audio_buf);
     SDL_CloseAudio();
     for (int i = 0; i < AZIMUTH_CNT; i++) {
         free_hrtf_data(&hrtfs[i]);
