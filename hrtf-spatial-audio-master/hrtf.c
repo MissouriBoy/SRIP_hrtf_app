@@ -337,7 +337,7 @@ SDL_AudioDeviceID MakeAudio(int begin, int end, int sound, int choice, int jump)
     SDL_AudioSpec desired_audio_spec;
     SDL_AudioCVT audio_cvt;
     SDL_AudioCVT hrtf_audio_cvt;
-
+    int numDevices, num = 0;
 
     // Audio output format
     desired_audio_spec.freq = SAMPLE_RATE;
@@ -347,13 +347,20 @@ SDL_AudioDeviceID MakeAudio(int begin, int end, int sound, int choice, int jump)
     desired_audio_spec.callback = fill_audio;
     desired_audio_spec.userdata = NULL;
 
+    numDevices = SDL_GetNumAudioDevices(0);
+    printf("Device count: %d\n", numDevices);
+    const char* device_name[numDevices]; 
+    if(numDevices > 1) {
+        printf("Multiple devices detected: \n");
+        for(int i =0; i < numDevices; i ++) {
+            device_name[i] = SDL_GetAudioDeviceName(i, 0);
+            printf("Press %d for %s\n", i, device_name[i]);
+        }
+        scanf("%d", &num);
+    }
+    printf("Device name: %s\n", device_name[num]);
 
-    printf("Device count: %d\n", SDL_GetNumAudioDevices(0));
-
-    const char* device_name = SDL_GetAudioDeviceName(1, 0);
-    printf("Device name: %s\n", device_name);
-
-    SDL_AudioDeviceID audio_device = SDL_OpenAudioDevice(device_name, 0, &desired_audio_spec, &obtained_audio_spec, 0);
+    SDL_AudioDeviceID audio_device = SDL_OpenAudioDevice(device_name[num], 0, &desired_audio_spec, &obtained_audio_spec, 0);
 
     printf("Desired Audio Spec:\n");
     print_audio_spec(&desired_audio_spec);
@@ -817,6 +824,7 @@ void GUI(int begin, int end, int sound, int choice, int jump, SDL_AudioDeviceID 
                         strcat(str, accA);
                         strcat(str, "%");
                         SDL_ShowSimpleMessageBox(0, "Testing", str, window);
+                        memset(str, 0, sizeof str);
                         break;
 
                     }
